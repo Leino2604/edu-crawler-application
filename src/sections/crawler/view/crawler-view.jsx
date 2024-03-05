@@ -16,22 +16,15 @@ import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
 import TableNoData from "../table-no-data";
-import UserTableRow from "../user-table-row";
-import UserTableHead from "../user-table-head";
+import CrawlerTableRow from "../crawler-table-row";
+import CrawlerTableHead from "../crawler-table-head";
 import TableEmptyRows from "../table-empty-rows";
-import UserTableToolbar from "../user-table-toolbar";
+import CrawlerTableToolbar from "../crawler-table-toolbar";
 import { emptyRows, applyFilter, getComparator } from "../utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  TextField,
-} from "@mui/material";
 
 // ----------------------------------------------------------------------
 
-export default function UserPage() {
+export default function CrawlerPage() {
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState("asc");
@@ -43,16 +36,6 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === "asc";
@@ -125,14 +108,13 @@ export default function UserPage() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={handleClickOpen}
         >
           New User
         </Button>
       </Stack>
 
       <Card>
-        <UserTableToolbar
+        <CrawlerTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -141,7 +123,7 @@ export default function UserPage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: "unset" }}>
             <Table sx={{ minWidth: 800 }}>
-              <UserTableHead
+              <CrawlerTableHead
                 order={order}
                 orderBy={orderBy}
                 rowCount={users.length}
@@ -161,7 +143,7 @@ export default function UserPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <UserTableRow
+                    <CrawlerTableRow
                       key={row.id}
                       name={row.name}
                       role={row.role}
@@ -195,37 +177,6 @@ export default function UserPage() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
-      <>
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address
-              here. We will send updates occasionally.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Email Address"
-              type="email"
-              fullWidth
-            />
-          </DialogContent>
-          {/* <DialogActions>
-            <Button onClick={handleClose} color="default">
-              Add
-            </Button>
-            <Button onClick={handleClose} color="default">
-              Cancel
-            </Button>
-          </DialogActions> */}
-        </Dialog>
-      </>
     </Container>
   );
 }

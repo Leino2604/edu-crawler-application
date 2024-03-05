@@ -34,6 +34,7 @@ export default function RegisterView() {
   const renderForm = (
     <>
       <Stack spacing={3} my={3}>
+        <TextField name="fullname" label="Full Name" />
         <TextField name="email" label="Email address" />
         <TextField name="username" label="Username" />
         <TextField
@@ -115,7 +116,7 @@ export default function RegisterView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">Sign up for Minimal</Typography>
+          <Typography variant="h4">Sign up for Crawler</Typography>
 
           <Typography variant="body2" sx={{ mt: 2 }}>
             Already have an account?
