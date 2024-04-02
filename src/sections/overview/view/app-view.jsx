@@ -5,6 +5,16 @@ import Grid from "@mui/material/Unstable_Grid2";
 import Typography from "@mui/material/Typography";
 
 import Iconify from "../../../components/iconify";
+import {
+    getStatus,
+    getTop10,
+    getTotalArticle,
+    getTotalArticle7Days,
+    getTotalBadCrawl,
+    getTotalGoodCrawl,
+    getTotalRunTime,
+    getTotalRunTime7Days,
+} from "../../../services/dashboard.api";
 
 import AppTasks from "../app-tasks";
 import AppNewsUpdate from "../app-news-update";
@@ -15,169 +25,271 @@ import AppWidgetSummary from "../app-widget-summary";
 import AppTrafficBySite from "../app-traffic-by-site";
 import AppCurrentSubject from "../app-current-subject";
 import AppConversionRates from "../app-conversion-rates";
+import { useQuery } from "@tanstack/react-query";
 
 // ----------------------------------------------------------------------
 
 export default function AppView() {
-  return (
-    <Container maxWidth="xl">
-      <Typography variant="h4" sx={{ mb: 5 }}>
-        Hi, Welcome back 👋
-      </Typography>
+    const { data: totalTime } = useQuery({
+        queryKey: ["totaltime"],
+        queryFn: () => getTotalRunTime(),
+    });
+    const { data: totalTime7Days } = useQuery({
+        queryKey: ["totaltime7days"],
+        queryFn: () => getTotalRunTime7Days(),
+    });
+    const { data: totalArticle } = useQuery({
+        queryKey: ["totalarticle"],
+        queryFn: () => getTotalArticle(),
+    });
+    const { data: totalArticle7Days } = useQuery({
+        queryKey: ["totalarticle7days"],
+        queryFn: () => getTotalArticle7Days(),
+    });
+    const { data: totalGood } = useQuery({
+        queryKey: ["totalgood"],
+        queryFn: () => getTotalGoodCrawl(),
+    });
+    const { data: totalBad } = useQuery({
+        queryKey: ["totalbad"],
+        queryFn: () => getTotalBadCrawl(),
+    });
+    const { data: totalStatus } = useQuery({
+        queryKey: ["totalstatus"],
+        queryFn: () => getStatus(),
+    });
+    const { data: top10 } = useQuery({
+        queryKey: ["top10"],
+        queryFn: () => getTop10(),
+    });
 
-      <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="Weekly"
-            total={714000}
-            color="success"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
-          />
-        </Grid>
+    return (
+        <Container maxWidth="xl">
+            <Typography variant="h4" sx={{ mb: 5 }}>
+                Hi, Welcome back 👋
+            </Typography>
 
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="New Users"
-            total={1352831}
-            color="info"
-            icon={
-              <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />
-            }
-          />
-        </Grid>
+            <Grid container spacing={3}>
+                <Grid xs={12} sm={6} md={3}>
+                    <AppWidgetSummary
+                        title="Total Runtime"
+                        total={totalTime?.data?.TotalRunTime}
+                        color="success"
+                        icon={
+                            <img
+                                alt="icon"
+                                src="/assets/icons/glass/ic_glass_bag.png"
+                            />
+                        }
+                    />
+                </Grid>
+                <Grid xs={12} sm={6} md={3}>
+                    <AppWidgetSummary
+                        title="Total Articles"
+                        total={totalArticle?.data?.TotalArticle}
+                        color="info"
+                        icon={
+                            <img
+                                alt="icon"
+                                src="/assets/icons/glass/ic_glass_users.png"
+                            />
+                        }
+                    />
+                </Grid>
+                <Grid xs={12} sm={6} md={3}>
+                    <AppWidgetSummary
+                        title="Total Good Crawl"
+                        total={totalGood?.data?.TotalGoodCrawl}
+                        color="warning"
+                        icon={
+                            <img
+                                alt="icon"
+                                src="/assets/icons/glass/ic_glass_buy.png"
+                            />
+                        }
+                    />
+                </Grid>
+                <Grid xs={12} sm={6} md={3}>
+                    <AppWidgetSummary
+                        title="Total Bad Crawl"
+                        total={totalBad?.data?.TotalBadCrawl}
+                        color="error"
+                        icon={
+                            <img
+                                alt="icon"
+                                src="/assets/icons/glass/ic_glass_message.png"
+                            />
+                        }
+                    />
+                </Grid>
+                <Grid xs={12} md={6} lg={8}>
+                    <AppWebsiteVisits
+                        title="Crawl Successfully"
+                        subheader=""
+                        chart={{
+                            labels: [
+                                "01/01/2004",
+                                "01/02/2004",
+                                "01/03/2004",
+                                "01/04/2004",
+                                "01/05/2004",
+                                "01/06/2004",
+                                "01/07/2004",
+                            ],
+                            series: [
+                                {
+                                    name: "Good",
+                                    type: "line",
+                                    fill: "solid",
+                                    data: totalArticle7Days?.data?.Detail?.map(
+                                        (obj) => obj.TotalCrawlSuccess
+                                    ) || [23, 11, 22, 27, 13, 22, 37],
+                                },
+                            ],
+                        }}
+                    />
+                </Grid>
+                <Grid xs={12} md={6} lg={4}>
+                    <AppCurrentVisits
+                        title="Current Status Crawlers"
+                        chart={{
+                            series: [
+                                {
+                                    label: "Available",
+                                    value:
+                                        totalStatus?.data?.detail?.Available ||
+                                        0,
+                                },
+                                {
+                                    label: "Closing",
+                                    value:
+                                        totalStatus?.data?.detail?.Closing || 0,
+                                },
+                                {
+                                    label: "Running",
+                                    value:
+                                        totalStatus?.data?.detail?.Running || 0,
+                                },
+                                {
+                                    label: "Suspend",
+                                    value:
+                                        totalStatus?.data?.detail?.Suspend || 0,
+                                },
+                            ],
+                        }}
+                    />
+                </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="Daily"
-            total={1723315}
-            color="warning"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
-          />
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="Bug Reports"
-            total={234}
-            color="error"
-            icon={
-              <img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />
-            }
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"
-            chart={{
-              labels: [
-                "01/01/2003",
-                "02/01/2003",
-                "03/01/2003",
-                "04/01/2003",
-                "05/01/2003",
-                "06/01/2003",
-                "07/01/2003",
-                "08/01/2003",
-                "09/01/2003",
-                "10/01/2003",
-                "11/01/2003",
-              ],
-              series: [
-                {
-                  name: "Team A",
-                  type: "column",
-                  fill: "solid",
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: "Team B",
-                  type: "area",
-                  fill: "gradient",
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-                {
-                  name: "Team C",
-                  type: "line",
-                  fill: "solid",
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-                },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentVisits
-            title="Current Visits"
-            chart={{
-              series: [
-                { label: "America", value: 4344 },
-                { label: "Asia", value: 5435 },
-                { label: "Europe", value: 1443 },
-                { label: "Africa", value: 4443 },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppConversionRates
-            title="Conversion Rates"
-            subheader="(+43%) than last year"
-            chart={{
-              series: [
-                { label: "Italy", value: 400 },
-                { label: "Japan", value: 430 },
-                { label: "China", value: 448 },
-                { label: "Canada", value: 470 },
-                { label: "France", value: 540 },
-                { label: "Germany", value: 580 },
-                { label: "South Korea", value: 690 },
-                { label: "Netherlands", value: 1100 },
-                { label: "United States", value: 1200 },
-                { label: "United Kingdom", value: 1380 },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentSubject
-            title="Current Subject"
-            chart={{
-              categories: [
-                "English",
-                "History",
-                "Physics",
-                "Geography",
-                "Chinese",
-                "Math",
-              ],
-              series: [
-                { name: "Series 1", data: [80, 50, 30, 40, 100, 20] },
-                { name: "Series 2", data: [20, 30, 40, 80, 20, 80] },
-                { name: "Series 3", data: [44, 76, 78, 13, 43, 10] },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppNewsUpdate
-            title="News Update"
-            list={[...Array(5)].map((_, index) => ({
-              id: faker.string.uuid(),
-              title: faker.person.jobTitle(),
-              description: faker.commerce.productDescription(),
-              image: `/assets/images/covers/cover_${index + 1}.jpg`,
-              postedAt: faker.date.recent(),
-            }))}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
+                <Grid xs={12} md={12} lg={12}>
+                    <AppConversionRates
+                        title="Conversion Rates"
+                        subheader="(+43%) than last year"
+                        chart={{
+                            series: [
+                                {
+                                    label: `Spider ${top10?.data?.detail?.[9]?.SpiderID}`,
+                                    value: top10?.data?.detail?.[9]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${top10?.data?.detail?.[8]?.SpiderID}`,
+                                    value: top10?.data?.detail?.[8]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[7]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[7]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[6]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[6]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[5]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[5]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[4]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[4]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[3]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[3]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[2]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[2]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[1]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[1]?.Total || 0,
+                                },
+                                {
+                                    label: `Spider ${
+                                        top10?.data?.detail?.[0]?.SpiderID || 0
+                                    }`,
+                                    value: top10?.data?.detail?.[0]?.Total || 0,
+                                },
+                            ],
+                        }}
+                    />
+                </Grid>
+                {/* <Grid xs={12} md={6} lg={4}>
+                    <AppCurrentSubject
+                        title="Current Subject"
+                        chart={{
+                            categories: [
+                                "English",
+                                "History",
+                                "Physics",
+                                "Geography",
+                                "Chinese",
+                                "Math",
+                            ],
+                            series: [
+                                {
+                                    name: "Series 1",
+                                    data: [80, 50, 30, 40, 100, 20],
+                                },
+                                {
+                                    name: "Series 2",
+                                    data: [20, 30, 40, 80, 20, 80],
+                                },
+                                {
+                                    name: "Series 3",
+                                    data: [44, 76, 78, 13, 43, 10],
+                                },
+                            ],
+                        }}
+                    />
+                </Grid> */}
+                {/* <Grid xs={12} md={12} lg={12}>
+                    <AppNewsUpdate
+                        title="News Update"
+                        list={[...Array(5)].map((_, index) => ({
+                            id: faker.string.uuid(),
+                            title: faker.person.jobTitle(),
+                            description: faker.commerce.productDescription(),
+                            image: `/assets/images/covers/cover_${
+                                index + 1
+                            }.jpg`,
+                            postedAt: faker.date.recent(),
+                        }))}
+                    />
+                </Grid> */}
+                {/* <Grid xs={12} md={6} lg={4}>
           <AppOrderTimeline
             title="Order Timeline"
             list={[...Array(5)].map((_, index) => ({
@@ -193,9 +305,8 @@ export default function AppView() {
               time: faker.date.past(),
             }))}
           />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
+        </Grid> */}
+                {/* <Grid xs={12} md={6} lg={4}>
           <AppTrafficBySite
             title="Traffic by Site"
             list={[
@@ -237,9 +348,8 @@ export default function AppView() {
               },
             ]}
           />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
+        </Grid> */}
+                {/* <Grid xs={12} md={6} lg={8}>
           <AppTasks
             title="Tasks"
             list={[
@@ -250,8 +360,8 @@ export default function AppView() {
               { id: "5", name: "Sprint Showcase" },
             ]}
           />
-        </Grid>
-      </Grid>
-    </Container>
-  );
+        </Grid> */}
+            </Grid>
+        </Container>
+    );
 }

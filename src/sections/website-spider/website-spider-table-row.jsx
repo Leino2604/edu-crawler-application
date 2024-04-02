@@ -2,7 +2,6 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 
 import Stack from "@mui/material/Stack";
-import Avatar from "@mui/material/Avatar";
 import Popover from "@mui/material/Popover";
 import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
@@ -16,12 +15,12 @@ import Iconify from "../../components/iconify";
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({
+export default function WebsiteSpiderTableRow({
     selected,
-    username,
-    role,
-    onlineStatus,
-    accountStatus,
+    id,
+    url,
+    crawlStatus,
+    status,
     handleClick,
 }) {
     const [open, setOpen] = useState(null);
@@ -47,22 +46,24 @@ export default function UserTableRow({
 
                 <TableCell component="th" scope="row">
                     <Typography variant="subtitle2" noWrap>
-                        {username}
+                        {`Spider ${id}`}
                     </Typography>
                 </TableCell>
 
-                <TableCell>{role}</TableCell>
+                <TableCell>{url}</TableCell>
 
-                <TableCell>{onlineStatus ? "Yes" : "No"}</TableCell>
+                <TableCell>{crawlStatus}</TableCell>
 
                 <TableCell>
                     <Label
                         color={
-                            (accountStatus === "Restrict" && "error") ||
-                            "success"
+                            (status === "Available" && "success") ||
+                            (status === "Running" && "info") ||
+                            (status === "Closing" && "warning") ||
+                            (status === "Suspend" && "error")
                         }
                     >
-                        {accountStatus}
+                        {status}
                     </Label>
                 </TableCell>
 
@@ -100,7 +101,7 @@ export default function UserTableRow({
     );
 }
 
-UserTableRow.propTypes = {
+WebsiteSpiderTableRow.propTypes = {
     avatarUrl: PropTypes.any,
     company: PropTypes.any,
     handleClick: PropTypes.func,

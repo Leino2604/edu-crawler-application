@@ -11,7 +11,7 @@ import Iconify from "../../components/iconify";
 
 // ----------------------------------------------------------------------
 
-export default function UserTableToolbar({
+export default function WebsiteSpiderTableToolbar({
     numSelected,
     filterName,
     onFilterName,
@@ -37,7 +37,7 @@ export default function UserTableToolbar({
                 <OutlinedInput
                     value={filterName}
                     onChange={onFilterName}
-                    placeholder="Search User..."
+                    placeholder="Search Website Spider..."
                     startAdornment={
                         <InputAdornment position="start">
                             <Iconify
@@ -70,7 +70,7 @@ export default function UserTableToolbar({
     );
 }
 
-UserTableToolbar.propTypes = {
+WebsiteSpiderTableToolbar.propTypes = {
     numSelected: PropTypes.number,
     filterName: PropTypes.string,
     onFilterName: PropTypes.func,

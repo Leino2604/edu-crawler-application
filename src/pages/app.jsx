@@ -5,13 +5,13 @@ import { AppView } from "../sections/overview/view";
 // ----------------------------------------------------------------------
 
 export default function AppPage() {
-  return (
-    <>
-      <Helmet>
-        <title> Crawler </title>
-      </Helmet>
+    return (
+        <>
+            <Helmet>
+                <title> Crawler </title>
+            </Helmet>
 
-      <AppView />
-    </>
-  );
+            <AppView />
+        </>
+    );
 }

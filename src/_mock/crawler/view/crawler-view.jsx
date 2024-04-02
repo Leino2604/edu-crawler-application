@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -10,49 +9,33 @@ import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
-import {
-    Dialog,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    TextField,
-} from "@mui/material";
+
+import { users } from "../../../_mock/user";
 
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
-import { emptyRows, applyFilter, getComparator } from "../utils";
-
 import TableNoData from "../table-no-data";
-import UserTableRow from "../user-table-row";
-import UserTableHead from "../user-table-head";
+import CrawlerTableRow from "../crawler-table-row";
+import CrawlerTableHead from "../crawler-table-head";
 import TableEmptyRows from "../table-empty-rows";
-import UserTableToolbar from "../user-table-toolbar";
-import { getUser } from "../../../services/user.api";
+import CrawlerTableToolbar from "../crawler-table-toolbar";
+import { emptyRows, applyFilter, getComparator } from "../utils";
 
 // ----------------------------------------------------------------------
 
-export default function UserPage() {
+export default function CrawlerPage() {
     const [page, setPage] = useState(0);
+
     const [order, setOrder] = useState("asc");
+
     const [selected, setSelected] = useState([]);
-    const [orderBy, setOrderBy] = useState("username");
+
+    const [orderBy, setOrderBy] = useState("name");
+
     const [filterName, setFilterName] = useState("");
+
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [open, setOpen] = useState(false);
-
-    const { data } = useQuery({
-        queryKey: ["user"],
-        queryFn: () => getUser(),
-    });
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
 
     const handleSort = (event, id) => {
         const isAsc = orderBy === id && order === "asc";
@@ -64,9 +47,7 @@ export default function UserPage() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelecteds = data?.data?.detail?.detail?.map(
-                (n) => n.username
-            );
+            const newSelecteds = users.map((n) => n.name);
             setSelected(newSelecteds);
             return;
         }
@@ -106,7 +87,7 @@ export default function UserPage() {
     };
 
     const dataFiltered = applyFilter({
-        inputData: data?.data?.detail?.detail || [],
+        inputData: users,
         comparator: getComparator(order, orderBy),
         filterName,
     });
@@ -121,20 +102,19 @@ export default function UserPage() {
                 justifyContent="space-between"
                 mb={5}
             >
-                <Typography variant="h4">User</Typography>
+                <Typography variant="h4">Users</Typography>
 
                 <Button
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
-                    onClick={handleClickOpen}
                 >
                     New User
                 </Button>
             </Stack>
 
             <Card>
-                <UserTableToolbar
+                <CrawlerTableToolbar
                     numSelected={selected.length}
                     filterName={filterName}
                     onFilterName={handleFilterByName}
@@ -143,18 +123,23 @@ export default function UserPage() {
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
                         <Table sx={{ minWidth: 800 }}>
-                            <UserTableHead
+                            <CrawlerTableHead
                                 order={order}
                                 orderBy={orderBy}
-                                rowCount={data?.data?.detail?.total || 0}
+                                rowCount={users.length}
                                 numSelected={selected.length}
                                 onRequestSort={handleSort}
                                 onSelectAllClick={handleSelectAllClick}
                                 headLabel={[
-                                    { id: "username", label: "Username" },
+                                    { id: "name", label: "Name" },
+                                    { id: "company", label: "Company" },
                                     { id: "role", label: "Role" },
-                                    { id: "onlineStatus", label: "Online" },
-                                    { id: "accountStatus", label: "Status" },
+                                    {
+                                        id: "isVerified",
+                                        label: "Verified",
+                                        align: "center",
+                                    },
+                                    { id: "status", label: "Status" },
                                     { id: "" },
                                 ]}
                             />
@@ -165,19 +150,20 @@ export default function UserPage() {
                                         page * rowsPerPage + rowsPerPage
                                     )
                                     .map((row) => (
-                                        <UserTableRow
+                                        <CrawlerTableRow
                                             key={row.id}
-                                            username={row.username}
+                                            name={row.name}
                                             role={row.role}
-                                            accountStatus={row.accountStatus}
-                                            onlineStatus={row.onlineStatus}
+                                            status={row.status}
+                                            company={row.company}
+                                            avatarUrl={row.avatarUrl}
+                                            isVerified={row.isVerified}
                                             selected={
-                                                selected.indexOf(
-                                                    row.username
-                                                ) !== -1
+                                                selected.indexOf(row.name) !==
+                                                -1
                                             }
                                             handleClick={(event) =>
-                                                handleClick(event, row.username)
+                                                handleClick(event, row.name)
                                             }
                                         />
                                     ))}
@@ -187,7 +173,7 @@ export default function UserPage() {
                                     emptyRows={emptyRows(
                                         page,
                                         rowsPerPage,
-                                        data?.data?.detail?.total
+                                        users.length
                                     )}
                                 />
 
@@ -200,45 +186,13 @@ export default function UserPage() {
                 <TablePagination
                     page={page}
                     component="div"
-                    count={data?.data?.detail?.total || 0}
+                    count={users.length}
                     rowsPerPage={rowsPerPage}
                     onPageChange={handleChangePage}
                     rowsPerPageOptions={[5, 10, 25]}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Card>
-            <>
-                <Dialog
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="form-dialog-title"
-                >
-                    <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            To subscribe to this website, please enter your
-                            email address here. We will send updates
-                            occasionally.
-                        </DialogContentText>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Email Address"
-                            type="email"
-                            fullWidth
-                        />
-                    </DialogContent>
-                    {/* <DialogActions>
-            <Button onClick={handleClose} color="default">
-              Add
-            </Button>
-            <Button onClick={handleClose} color="default">
-              Cancel
-            </Button>
-          </DialogActions> */}
-                </Dialog>
-            </>
         </Container>
     );
 }

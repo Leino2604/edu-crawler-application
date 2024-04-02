@@ -1,17 +1,17 @@
 import { Helmet } from "react-helmet-async";
 
-import { RegisterView } from "../sections/register";
+import { WebsiteSpiderView } from "../sections/website-spider/view";
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage() {
+export default function CrawlerPage() {
     return (
         <>
             <Helmet>
-                <title> Register | Minimal UI </title>
+                <title> Crawl | Minimal UI </title>
             </Helmet>
 
-            <RegisterView />
+            <WebsiteSpiderView />
         </>
     );
 }
