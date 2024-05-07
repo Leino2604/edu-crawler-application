@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
+import Swal from "sweetalert2";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -21,12 +23,14 @@ import Logo from "../../components/logo";
 import Iconify from "../../components/iconify";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../../services/auth.api";
+import { loginSlice } from "../../redux/auth.slice";
 
 // ----------------------------------------------------------------------
 
 export default function LoginView() {
     const theme = useTheme();
     const router = useRouter();
+    const dispatch = useDispatch();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -36,80 +40,43 @@ export default function LoginView() {
         mutationFn: (body) => login(body),
     });
 
-    const handleClick = () => {
+    const handleClick = (e) => {
+        // router.replace("/");
+        e.preventDefault();
         loginMutation.mutate(
             { Username: username, Password: password },
             {
                 onSuccess: (data) => {
-                    console.log(data);
+                    setUsername("");
+                    setPassword("");
+                    dispatch(loginSlice(data.data));
+                    Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: "true",
+                    }).fire({
+                        icon: "success",
+                        title: "Login successfully",
+                    });
                 },
                 onError: (error) => {
-                    console.log(error.config.data);
+                    Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: "true",
+                    }).fire({
+                        icon: "error",
+                        title: "Login failed",
+                        text: error.response.data.message,
+                    });
                 },
             }
         );
     };
-
-    const renderForm = (
-        <>
-            <Stack spacing={3}>
-                <TextField
-                    name="username"
-                    label="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-                <TextField
-                    name="password"
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
-                                    edge="end"
-                                >
-                                    <Iconify
-                                        icon={
-                                            showPassword
-                                                ? "eva:eye-fill"
-                                                : "eva:eye-off-fill"
-                                        }
-                                    />
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-            </Stack>
-
-            {/* <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="flex-end"
-                sx={{ my: 3 }}
-            >
-                <Link style={{ color: "#1877F2" }}>Forgot password?</Link>
-            </Stack> */}
-
-            <LoadingButton
-                sx={{ my: 3 }}
-                fullWidth
-                size="large"
-                type="submit"
-                variant="contained"
-                color="inherit"
-                onClick={handleClick}
-            >
-                Login
-            </LoadingButton>
-        </>
-    );
 
     return (
         <Box
@@ -142,7 +109,6 @@ export default function LoginView() {
                     }}
                 >
                     <Typography variant="h4">Sign in to Crawler</Typography>
-
                     <Typography variant="body2" sx={{ mt: 2, mb: 5 }}>
                         Don’t have an account?
                         <Link
@@ -152,7 +118,6 @@ export default function LoginView() {
                             Get started
                         </Link>
                     </Typography>
-
                     {/* <Stack direction="row" spacing={2}>
                         <Button
                             fullWidth
@@ -194,7 +159,70 @@ export default function LoginView() {
                         </Typography>
                     </Divider>
 
-                    {renderForm}
+                    <>
+                        <Stack spacing={3}>
+                            <TextField
+                                name="username"
+                                label="Username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                            <TextField
+                                name="password"
+                                label="Password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() =>
+                                                    setShowPassword(
+                                                        !showPassword
+                                                    )
+                                                }
+                                                edge="end"
+                                            >
+                                                <Iconify
+                                                    icon={
+                                                        showPassword
+                                                            ? "eva:eye-fill"
+                                                            : "eva:eye-off-fill"
+                                                    }
+                                                />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Stack>
+
+                        {/* <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="flex-end"
+                            sx={{ my: 3 }}
+                        >
+                            <Link style={{ color: "#1877F2" }}>
+                                Forgot password?
+                            </Link>
+                        </Stack> */}
+
+                        <LoadingButton
+                            sx={{ my: 3 }}
+                            fullWidth
+                            size="large"
+                            type="submit"
+                            variant="contained"
+                            color="inherit"
+                            onClick={(e) => {
+                                handleClick(e);
+                            }}
+                        >
+                            Login
+                        </LoadingButton>
+                    </>
                 </Card>
             </Stack>
         </Box>

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { useSelector } from "react-redux";
 import { Outlet, Navigate, useRoutes } from "react-router-dom";
 
 import DashboardLayout from "../layouts";
@@ -14,27 +15,34 @@ export const ProductsPage = lazy(() => import("../pages/products"));
 export const Page404 = lazy(() => import("../pages/page-not-found"));
 export const WebpageSpiderPage = lazy(() => import("../pages/webpage-spider"));
 export const WebsiteSpiderPage = lazy(() => import("../pages/website-spider"));
+export const FilePage = lazy(() => import("../pages/file"));
+export const FileTypePage = lazy(() => import("../pages/file-type"));
+export const KeywordPage = lazy(() => import("../pages/keyword"));
 
 // ----------------------------------------------------------------------
 
-// function ProtectedRoute() {
-//   const { isAuthenticated } = useContext(AppContext)
-//   return isAuthenticated ? <Outlet /> : <Navigate to='/login' />
-// }
+function ProtectedRoute() {
+    const { isAuthenticated } = useSelector((state) => state.auth);
 
-// function RejectedRoute() {
-//   const { isAuthenticated } = useContext(AppContext)
-//   return !isAuthenticated ? <Outlet /> : <Navigate to='/' />
-// }
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+}
+
+function RejectedRoute() {
+    const { isAuthenticated } = useSelector((state) => state.auth);
+
+    return !isAuthenticated ? <Outlet /> : <Navigate to="/" />;
+}
 
 export default function Router() {
     const routes = useRoutes([
         {
             element: (
                 <DashboardLayout>
-                    <Suspense>
-                        <Outlet />
-                    </Suspense>
+                    <ProtectedRoute>
+                        <Suspense>
+                            <Outlet />
+                        </Suspense>
+                    </ProtectedRoute>
                 </DashboardLayout>
             ),
             children: [
@@ -46,16 +54,23 @@ export default function Router() {
                 { path: "websitespider", element: <WebsiteSpiderPage /> },
                 { path: "webpagespider", element: <WebpageSpiderPage /> },
                 { path: "article", element: <ArticlePage /> },
+                { path: "file", element: <FilePage /> },
+                { path: "filetype", element: <FileTypePage /> },
+                { path: "keyword", element: <KeywordPage /> },
             ],
         },
         {
-            path: "login",
-            element: <LoginPage />,
+            element: (
+                <RejectedRoute>
+                    <Outlet />
+                </RejectedRoute>
+            ),
+            children: [
+                { path: "login", element: <LoginPage /> },
+                { path: "register", element: <RegisterPage /> },
+            ],
         },
-        {
-            path: "register",
-            element: <RegisterPage />,
-        },
+
         {
             path: "404",
             element: <Page404 />,

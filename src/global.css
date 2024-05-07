@@ -1,2 +1,4 @@
 /* scrollbar */
 @import "simplebar-react/dist/simplebar.min.css";
+
+@import '@sweetalert2/theme-material-ui/material-ui.scss';

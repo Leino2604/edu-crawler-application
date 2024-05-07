@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export const login = (body) => {
-    console.log(body);
     return axios.post(
         "https://edu-crawler-application-be.onrender.com/api/auth/signin",
         body
