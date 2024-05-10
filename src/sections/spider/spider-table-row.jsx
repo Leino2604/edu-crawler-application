@@ -84,6 +84,14 @@ export default function SpiderTableRow({
                     sx: { width: 140 },
                 }}
             >
+                <MenuItem 
+                    onClick={handleCloseMenu}
+                    sx={{ color: "success.main" }}
+                >
+                    <Iconify icon="eva:arrow-right-outline" sx={{ mr: 2 }} />
+                    Run
+                </MenuItem>
+
                 <MenuItem onClick={handleCloseMenu}>
                     <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
                     Edit
