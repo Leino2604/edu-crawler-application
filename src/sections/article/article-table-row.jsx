@@ -13,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import EditModal from "./edit-modal";
+import DeleteModal from "./delete-modal";
 import { useQuery } from "@tanstack/react-query";
 import { getArticleById } from "../../services/article.api";
 
@@ -27,6 +28,7 @@ export default function ArticleTableRow({
 }) {
     const [open, setOpen] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const { data } = useQuery({
         queryKey: ["articleid", id],
         queryFn: () => getArticleById(id),
@@ -85,11 +87,14 @@ export default function ArticleTableRow({
                     }}
                 >
                     <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-                    Edit
+                    View
                 </MenuItem>
 
                 <MenuItem
-                    onClick={handleCloseMenu}
+                    onClick={() => {
+                        setShowDeleteModal(true);
+                        handleCloseMenu();
+                    }}
                     sx={{ color: "error.main" }}
                 >
                     <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
@@ -100,6 +105,11 @@ export default function ArticleTableRow({
                 open={showEditModal}
                 article={data?.data || {}}
                 onClose={() => setShowEditModal(false)}
+            />
+            <DeleteModal
+                open={showDeleteModal}
+                article={data?.data || {}}
+                onClose={() => setShowDeleteModal(false)}            
             />
         </>
     );
