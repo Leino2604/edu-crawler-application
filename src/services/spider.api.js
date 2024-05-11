@@ -7,3 +7,5 @@ export const getWebsiteSpider = (params) =>
 
 export const getWebpageSpider = (params) =>
     http.get("webpageSpider", { params });
+
+export const getSpiderById = (id) => http.get(`spiders/${id}`);

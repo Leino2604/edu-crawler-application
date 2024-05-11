@@ -12,6 +12,9 @@ import IconButton from "@mui/material/IconButton";
 
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
+import SpiderDetailModal from "./spider-detail-modal";
+import { useQuery } from "@tanstack/react-query";
+import { getSpiderById } from "../../services/spider.api";
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +27,13 @@ export default function SpiderTableRow({
     handleClick,
 }) {
     const [open, setOpen] = useState(null);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const { data } = useQuery({
+        queryKey: ["spider", id],
+        queryFn: () => getSpiderById(id),
+    });
 
     const handleOpenMenu = (event) => {
         setOpen(event.currentTarget);
@@ -86,10 +96,27 @@ export default function SpiderTableRow({
             >
                 <MenuItem 
                     onClick={handleCloseMenu}
-                    sx={{ color: "success.main" }}
+                    sx={{ 
+                      color: (status === "Available" && "success.main") || (status === "Running" && "error.main")
+                    }}
                 >
-                    <Iconify icon="eva:arrow-right-outline" sx={{ mr: 2 }} />
-                    Run
+                    <Iconify 
+                      icon={(status === "Available" && "eva:arrow-right-outline")  || (status === "Running" && "eva:stop-circle-outline")}
+                      sx={{ mr: 2 }} 
+                    />
+                    {
+                      (status === "Available" && "Run") ||(status === "Running" && "Stop")
+                    }
+                </MenuItem>
+
+                <MenuItem 
+                  onClick={() => {
+                    setShowViewModal(true);
+                    handleCloseMenu();
+                  }}
+                >
+                    <Iconify icon="eva:alert-circle-outline" sx={{ mr: 2 }} />
+                    See Detail
                 </MenuItem>
 
                 <MenuItem onClick={handleCloseMenu}>
@@ -105,6 +132,11 @@ export default function SpiderTableRow({
                     Delete
                 </MenuItem>
             </Popover>
+            <SpiderDetailModal
+                open={showViewModal}
+                article={data?.data || {}}
+                onClose={() => setShowViewModal(false)}
+            />
         </>
     );
 }

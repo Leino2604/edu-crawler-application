@@ -42,6 +42,8 @@ export default function ArticleTableRow({
         setOpen(null);
     };
 
+    //Local storage. getByProfile
+
     return (
         <>
             <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
