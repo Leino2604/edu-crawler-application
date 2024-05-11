@@ -3,7 +3,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { Input } from '@mui/base/Input';
+import { Unstable_Grid as Grid } from '@mui/system';
 import { TextField } from "@mui/material";
+import Button from "@mui/material/Button";
+import Iconify from "../../components/iconify";
+
 
 const style = {
     position: "absolute",
@@ -11,7 +15,7 @@ const style = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: "70%",
-    height: "70%",
+    height: "75%",
     bgcolor: "background.paper",
     border: "2px solid #000",
     boxShadow: 24,
@@ -19,7 +23,9 @@ const style = {
 };
 
 export default function SpiderDetailModal(prop) {
-    const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread} = prop.article;
+    const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread, Keyword, FileType, LastRunDate, LastEndDate, RunTime, TotalPage} = prop.article;
+    const KeywordList = Keyword ? Keyword.map((data) => data.Value) : []
+    const FileTypeList = FileType ? FileType.map((data) => data.Value) : []
 
     return (
         <Modal
@@ -28,9 +34,22 @@ export default function SpiderDetailModal(prop) {
             aria-describedby="modal-modal-description"
         >
             <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Spider {Id}
-                </Typography>
+                <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+                    <Grid xs={10}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                            Spider {Id}
+                        </Typography>
+                    </Grid>
+                    <Grid xs={2}>
+                        <Button
+                            variant="contained"
+                            color="inherit"
+                            startIcon={<Iconify icon="eva:brush-outline" />}
+                        >
+                            Edit
+                        </Button>
+                    </Grid>
+                </Grid>
                 <form
                     style={{
                         height: "100%",
@@ -58,28 +77,81 @@ export default function SpiderDetailModal(prop) {
                         margin="normal"
                         defaultValue={Status}
                         disabled={true}
-                    />
-                    <TextField
-                        label="Delay"
-                        name="delay"
-                        margin="normal"
-                        defaultValue={Delay}
-                        disabled={true}
-                    />
-                    <TextField
-                        label="Graph Depth"
-                        name="graphDeep"
-                        margin="normal"
-                        defaultValue={GraphDeep}
-                        disabled={true}
-                    />
-                    <TextField
-                        label="Max Thread"
-                        name="maxThread"
-                        margin="normal"
-                        defaultValue={MaxThread}
-                        disabled={true}
-                    />
+                    />                  
+                    <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+                        <Grid xs={4}>
+                            <h3>Crawl Rules</h3>
+                        </Grid>
+                        <Grid xs={8}>
+                            <Button
+                                variant="contained"
+                                color="inherit"
+                                startIcon={<Iconify icon="eva:alert-circle-outline" />}
+                            >
+                                Detail
+                            </Button>
+                        </Grid>                    
+                        <Grid xs={12}>
+                            <h3>Basic Configuration</h3>
+                        </Grid>
+                        <Grid xs={4}>
+                            Delay: 
+                        </Grid>
+                        <Grid xs={8}>
+                            {Delay} s
+                        </Grid>                        
+                        <Grid xs={4}>
+                            Graph Depth: 
+                        </Grid>
+                        <Grid xs={8}>
+                            {GraphDeep}
+                        </Grid>                        
+                        <Grid xs={4}>
+                            Max Thread:
+                        </Grid>
+                        <Grid xs={8}>
+                            {MaxThread}
+                        </Grid>                      
+                        <Grid xs={4}>
+                            Allowed Keyword:
+                        </Grid>
+                        <Grid xs={8}>
+                            {KeywordList.length == 0 ? "All" : KeywordList.join(', ')}
+                        </Grid>
+                        <Grid xs={4}>
+                            Allowed File Type:
+                        </Grid>
+                        <Grid xs={8}>
+                            {FileTypeList.length == 0 ? "All" : FileTypeList}
+                        </Grid>
+                        <Grid xs={12}>
+                            <h3>Spider Stats</h3>
+                        </Grid>
+                        <Grid xs={4}>
+                            Last Run Date:
+                        </Grid>
+                        <Grid xs={8}>
+                            {LastRunDate}
+                        </Grid>
+                        <Grid xs={4}>
+                            Last End Date:
+                        </Grid>
+                        <Grid xs={8}>
+                            {LastEndDate}
+                        </Grid>
+                        <Grid xs={4}>
+                            Run Time:
+                        </Grid>
+                        <Grid xs={8}>
+                            {RunTime} s
+                        </Grid>
+                        <Grid xs={4}>
+                            Total Page:
+                        </Grid>
+                        <Grid xs={8}>
+                            {TotalPage}
+                        </Grid>
+                    </Grid>
                 </form>
             </Box>
         </Modal>
