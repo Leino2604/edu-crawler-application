@@ -18,7 +18,7 @@ import SpiderDetailModal from "./spider-detail-modal";
 import SpiderEditBasicModal from "./spider-edit-basic-modal";
 import { useQuery } from "@tanstack/react-query";
 import { getSpiderById } from "../../services/spider.api";
-import { runSpiderById, stopSpiderById } from "../../services/spider.api";
+import { runSpiderById, stopSpiderById, deleteSpiderById } from "../../services/spider.api";
 
 // ----------------------------------------------------------------------
 
@@ -50,12 +50,10 @@ export default function SpiderTableRow({
         setOpen(null);
     };
 
-    const runSpider = async () => {
-      const response = await runSpiderById(id, { user_id: profile.id })
+    const deleteSpider = async () => {
+      const response = await deleteSpiderById(id)
 
       if (response.status == 200) {
-        status = "Running"
-
         Swal.mixin({
             toast: true,
             position: "top-end",
@@ -64,7 +62,35 @@ export default function SpiderTableRow({
             timerProgressBar: "true",
         }).fire({
             icon: "success",
-            title: "\n\nRun spider successfully. Please refresh page.",
+            title: "\n\nDelete spider " + id + " successfully. Please refresh page.",
+        });
+      } else {
+        Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: "true",
+        }).fire({
+            icon: "error",
+            title: "\n\nDelete failed"
+        });
+      }
+    }
+
+    const runSpider = async () => {
+      const response = await runSpiderById(id, { user_id: profile.id })
+
+      if (response.status == 200) {
+        Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: "true",
+        }).fire({
+            icon: "success",
+            title: "\n\nRun spider " + id + " successfully. Please refresh page.",
         });
       } else {
         Swal.mixin({
@@ -84,8 +110,6 @@ export default function SpiderTableRow({
       const response = await stopSpiderById(id)
 
       if (response.status == 200) {
-        status = "Available"
-
         Swal.mixin({
             toast: true,
             position: "top-end",
@@ -94,7 +118,7 @@ export default function SpiderTableRow({
             timerProgressBar: "true",
         }).fire({
             icon: "success",
-            title: "\n\Stop spider successfully. Please Refresh page.",
+            title: "\n\nStop spider " + id + " successfully. Please refresh page.",
         });
       } else {
         Swal.mixin({
@@ -198,7 +222,9 @@ export default function SpiderTableRow({
                 </MenuItem>
 
                 <MenuItem
-                    onClick={handleCloseMenu}
+                    onClick={() => {
+                      deleteSpider()
+                    }}
                     sx={{ color: "error.main" }}
                 >
                     <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />

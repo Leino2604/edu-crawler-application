@@ -57,13 +57,6 @@ export default function SpiderDetailModal(prop) {
                         flexDirection: "column",
                     }}
                 >
-                    <TextField
-                        label="Url"
-                        name="url"
-                        margin="normal"
-                        defaultValue={Url}
-                        disabled={true}
-                    />     
                     <Grid container spacing={0} sx={{ flexGrow: 0 }}>                                          
                         <Grid xs={12}>
                             <h3>Basic Configuration</h3>
@@ -86,24 +79,29 @@ export default function SpiderDetailModal(prop) {
                         <Grid xs={8}>
                             {Status}
                         </Grid>  
-                        <Grid xs={4}>
-                            Delay: 
-                        </Grid>
-                        <Grid xs={8}>
-                            {Delay} s
-                        </Grid>                        
-                        <Grid xs={4}>
-                            Graph Depth: 
-                        </Grid>
-                        <Grid xs={8}>
-                            {GraphDeep}
-                        </Grid>                        
-                        <Grid xs={4}>
-                            Max Thread:
-                        </Grid>
-                        <Grid xs={8}>
-                            {MaxThread}
-                        </Grid>                      
+                        {Type == "WebsiteSpider" && (
+                          <>
+                            <Grid xs={4}>
+                                Delay: 
+                            </Grid>
+                            <Grid xs={8}>
+                                {Delay} s
+                            </Grid>                        
+                            <Grid xs={4}>
+                                Graph Depth: 
+                            </Grid>
+                            <Grid xs={8}>
+                                {GraphDeep}
+                            </Grid>                        
+                            <Grid xs={4}>
+                                Max Thread:
+                            </Grid>
+                            <Grid xs={8}>
+                                {MaxThread}
+                            </Grid>     
+                          </>
+                        )}
+                 
                         <Grid xs={4}>
                             Allowed Keyword:
                         </Grid>
@@ -130,34 +128,6 @@ export default function SpiderDetailModal(prop) {
                                 Detail
                             </Button>
                         </Grid> 
-                        <Grid xs={4}>
-                            <Typography id="modal-modal-title" variant="h6" component="h2">
-                                File Type
-                            </Typography>
-                        </Grid>
-                        <Grid xs={8}>
-                            <Button
-                                variant="contained"
-                                color="inherit"
-                                startIcon={<Iconify icon="eva:brush-outline" />}
-                            >
-                                Edit
-                            </Button>
-                        </Grid> 
-                        <Grid xs={4}>
-                            <Typography id="modal-modal-title" variant="h6" component="h2">
-                                Keyword
-                            </Typography>
-                        </Grid>
-                        <Grid xs={8}>
-                            <Button
-                                variant="contained"
-                                color="inherit"
-                                startIcon={<Iconify icon="eva:brush-outline" />}
-                            >
-                                Edit
-                            </Button>
-                        </Grid> 
                         <Grid xs={12}>
                             <h3>Spider Stats</h3>
                         </Grid>
@@ -179,12 +149,16 @@ export default function SpiderDetailModal(prop) {
                         <Grid xs={8}>
                             {RunTime} s
                         </Grid>
-                        <Grid xs={4}>
-                            Total Page:
-                        </Grid>
-                        <Grid xs={8}>
-                            {TotalPage}
-                        </Grid>
+                        {Type == "WebsiteSpider" && (
+                          <Grid xs={4}>
+                              Total Page:
+                          </Grid>
+                        )}
+                        {Type == "WebsiteSpider" && (
+                          <Grid xs={8}>
+                              {TotalPage}
+                          </Grid>
+                        )}
                     </Grid>
                 </form>
             </Box>
