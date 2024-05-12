@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import PropTypes from "prop-types";
 
+import Swal from "sweetalert2";
 import Stack from "@mui/material/Stack";
 import Popover from "@mui/material/Popover";
 import TableRow from "@mui/material/TableRow";
@@ -15,6 +17,7 @@ import Iconify from "../../components/iconify";
 import SpiderDetailModal from "./spider-detail-modal";
 import { useQuery } from "@tanstack/react-query";
 import { getSpiderById } from "../../services/spider.api";
+import { runSpiderById, stopSpiderById } from "../../services/spider.api";
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +39,8 @@ export default function SpiderTableRow({
         queryFn: () => getSpiderById(id),
     });
 
+    const profile = JSON.parse(localStorage.getItem("profile"))
+
     const handleOpenMenu = (event) => {
         setOpen(event.currentTarget);
     };
@@ -43,6 +48,66 @@ export default function SpiderTableRow({
     const handleCloseMenu = () => {
         setOpen(null);
     };
+
+    const runSpider = async () => {
+      const response = await runSpiderById(id, { user_id: profile.id })
+
+      if (response.status == 200) {
+        status = "Running"
+
+        Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: "true",
+        }).fire({
+            icon: "success",
+            title: "\n\nRun spider successfully. Please refresh page.",
+        });
+      } else {
+        Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: "true",
+        }).fire({
+            icon: "error",
+            title: "\n\nRun failed"
+        });
+      }
+    }
+
+    const stopSpider = async () => {
+      const response = await stopSpiderById(id)
+
+      if (response.status == 200) {
+        status = "Available"
+
+        Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: "true",
+        }).fire({
+            icon: "success",
+            title: "\n\Stop spider successfully. Please Refresh page.",
+        });
+      } else {
+        Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: "true",
+        }).fire({
+            icon: "error",
+            title: "\n\nStop failed"
+        });
+      }
+    }
 
     return (
         <>
@@ -94,7 +159,10 @@ export default function SpiderTableRow({
                 }}
             >
                 <MenuItem 
-                    onClick={handleCloseMenu}
+                    onClick={
+                      (status === "Available" && runSpider) ||
+                      (status === "Running" && stopSpider)
+                    }
                     sx={{ 
                       color: (status === "Available" && "success.main") || (status === "Running" && "error.main")
                     }}
