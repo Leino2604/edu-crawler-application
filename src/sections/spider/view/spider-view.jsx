@@ -136,8 +136,8 @@ export default function SpiderPage() {
                                     { id: "Id", label: "Name" },
                                     { id: "Url", label: "Url" },
                                     {
-                                        id: "CrawlStatus",
-                                        label: "Crawl Status",
+                                        id: "Last Run Date",
+                                        label: "Last Run Date",
                                     },
                                     { id: "Status", label: "Status" },
                                     { id: "" },
@@ -153,6 +153,7 @@ export default function SpiderPage() {
                                             url={row.Url}
                                             status={row.Status}
                                             crawlStatus={row.CrawlStatus}
+                                            lastRunDate={row.LastRunDate}
                                             selected={
                                                 selected.indexOf(row.Id) !== -1
                                             }

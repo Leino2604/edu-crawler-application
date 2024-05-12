@@ -23,6 +23,7 @@ export default function SpiderTableRow({
     id,
     url,
     crawlStatus,
+    lastRunDate,
     status,
     handleClick,
 }) {
@@ -62,15 +63,13 @@ export default function SpiderTableRow({
 
                 <TableCell>{url}</TableCell>
 
-                <TableCell>{crawlStatus}</TableCell>
+                <TableCell>{lastRunDate}</TableCell>
 
                 <TableCell>
                     <Label
                         color={
                             (status === "Available" && "success") ||
-                            (status === "Running" && "info") ||
-                            (status === "Closing" && "warning") ||
-                            (status === "Suspend" && "error")
+                            (status === "Running" && "info")
                         }
                     >
                         {status}
