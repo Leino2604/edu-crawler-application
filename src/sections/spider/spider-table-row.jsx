@@ -15,6 +15,7 @@ import IconButton from "@mui/material/IconButton";
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import SpiderDetailModal from "./spider-detail-modal";
+import SpiderEditBasicModal from "./spider-edit-basic-modal";
 import { useQuery } from "@tanstack/react-query";
 import { getSpiderById } from "../../services/spider.api";
 import { runSpiderById, stopSpiderById } from "../../services/spider.api";
@@ -186,7 +187,12 @@ export default function SpiderTableRow({
                     See Detail
                 </MenuItem>
 
-                <MenuItem onClick={handleCloseMenu}>
+                <MenuItem 
+                  onClick={() => {
+                    setShowEditModal(true);
+                    handleCloseMenu();
+                  }}
+                >
                     <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
                     Edit
                 </MenuItem>
@@ -203,6 +209,11 @@ export default function SpiderTableRow({
                 open={showViewModal}
                 article={data?.data || {}}
                 onClose={() => setShowViewModal(false)}
+            />
+            <SpiderEditBasicModal
+                open={showEditModal}
+                article={data?.data || {}}
+                onClose={() => setShowEditModal(false)}
             />
         </>
     );
