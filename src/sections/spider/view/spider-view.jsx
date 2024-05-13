@@ -22,6 +22,7 @@ import SpiderTableRow from "../spider-table-row";
 import SpiderTableHead from "../spider-table-head";
 import SpiderTableToolbar from "../spider-table-toolbar";
 import { emptyRows, applyFilter, getComparator } from "../utils";
+import SpiderCreateModal from "../spider-create-modal";
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ export default function SpiderPage() {
     const [orderBy, setOrderBy] = useState("Id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [showCreateSpiderModal, setShowCreateSpiderModal] = useState(false);
 
     const { data } = useQuery({
         queryKey: ["spider", page, rowsPerPage],
@@ -110,6 +112,7 @@ export default function SpiderPage() {
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
+                    onClick={() => setShowCreateSpiderModal(true)}
                 >
                     New Spider
                 </Button>
@@ -188,6 +191,10 @@ export default function SpiderPage() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Card>
+            <SpiderCreateModal
+                open={showCreateSpiderModal}
+                onClose={() => setShowCreateSpiderModal(false)}
+            />
         </Container>
     );
 }
