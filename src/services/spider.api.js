@@ -28,9 +28,7 @@ export const createWebsiteSpider = (userId, params) => http.post(`websiteSpider`
   "delay": params.delay,
   "graphdeep": params.graphdeep,
   "maxThread": params.maxThread,
-  "keyword": [
-    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40
-  ],
+  "keyword": params.keyword,
   "filetype": [
     0
   ],
@@ -40,9 +38,7 @@ export const createWebsiteSpider = (userId, params) => http.post(`websiteSpider`
 
 export const createWebpageSpider = (userId, params) => http.post(`webpageSpider`, {
   "url": params.url,
-  "keyword": [
-    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40
-  ],
+  "keyword": params.keyword,
   "filetype": [
     0
   ],

@@ -15,6 +15,7 @@ import { getKeyword } from "../../services/keyword.api";
 import { useQuery } from "@tanstack/react-query";
 import { updateSpiderBasicSettingById, updateSpiderUrlById, createWebpageSpider, createWebsiteSpider } from "../../services/spider.api";
 import Swal from "sweetalert2";
+import Chip from '@mui/material/Chip';
 
 const style = {
     position: "absolute",
@@ -29,24 +30,44 @@ const style = {
     p: 4,
 };
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
 export default function SpiderCreateModal(prop) {
-    const [data, setData] =  useState({
+    const [spiderData, setSpiderData] = useState({
       "type": "WebsiteSpider",
       "url": "",
       "delay": 2,
       "graphdeep": 3,
       "maxThread": 1,
+      "keyword": [],
+      "filetype": [],
     })
 
     const profile = JSON.parse(localStorage.getItem("profile"))
 
+    const { data } = useQuery({
+        queryKey: ["keyword"],
+        queryFn: () => getKeyword({ page: 0, keywordPerPage: 100 }),
+        keepPreviousData: true,
+    });
+    const keywordData = data?.data?.detail ? data?.data?.detail : []
+
     const handleCreateWebpageSpider = async () => {
       const response = await createWebpageSpider(
         profile.id,
-        data
+        spiderData
       )
 
-      if (response.status == 200) {
+      if (response.status == 201) {
         Swal.mixin({
             toast: true,
             position: "top-end",
@@ -55,7 +76,7 @@ export default function SpiderCreateModal(prop) {
             timerProgressBar: "true",
         }).fire({
             icon: "success",
-            title: "\n\nCreate spider successfully. Please refresh page.",
+            title: "\n\nCreate webpage spider successfully. Please refresh page.",
         });
       } else {
         Swal.mixin({
@@ -66,20 +87,18 @@ export default function SpiderCreateModal(prop) {
           timerProgressBar: "true",
         }).fire({
             icon: "error",
-            title: "\n\nCreate Spider failed"
+            title: "\n\nCreate webpage spider failed"
         });
       }
     }
 
     const handleCreateWebsiteSpider = async () => {
-      console.log(data)
-
       const response = await createWebsiteSpider(
         profile.id,
-        data
+        spiderData
       )
 
-      if (response.status == 200) {
+      if (response.status == 201) {
         Swal.mixin({
             toast: true,
             position: "top-end",
@@ -88,7 +107,7 @@ export default function SpiderCreateModal(prop) {
             timerProgressBar: "true",
         }).fire({
             icon: "success",
-            title: "\n\nCreate spider successfully. Please refresh page.",
+            title: "\n\nCreate website spider successfully. Please refresh page.",
         });
       } else {
         Swal.mixin({
@@ -99,7 +118,7 @@ export default function SpiderCreateModal(prop) {
           timerProgressBar: "true",
         }).fire({
             icon: "error",
-            title: "\n\nCreate Spider failed"
+            title: "\n\nCreate website spider failed"
         });
       }
     }
@@ -123,7 +142,7 @@ export default function SpiderCreateModal(prop) {
                             color="inherit"
                             startIcon={<Iconify icon="eva:brush-outline" />}
                             onClick={
-                              () => data.type == "WebsiteSpider" ? handleCreateWebsiteSpider() : handleCreateWebpageSpider()
+                              () => spiderData.type == "WebsiteSpider" ? handleCreateWebsiteSpider() : handleCreateWebpageSpider()
                             }
                         >
                             Save
@@ -143,25 +162,53 @@ export default function SpiderCreateModal(prop) {
                                 label="url"
                                 name="url"
                                 margin="normal"
-                                defaultValue={data.url}
-                                value={data.url}
-                                onChange={(e) => setData({...data, url: e.target.value})}
+                                defaultValue={spiderData.url}
+                                value={spiderData.url}
+                                onChange={(e) => setSpiderData({...spiderData, url: e.target.value})}
                             />   
                         </Grid>     
                         <Grid xs={4}>
                             <InputLabel>Type</InputLabel> 
                             <Select
-                                value={data.type}
+                                value={spiderData.type}
                                 label="Type"
-                                onChange={(e) => setData({...data, type: e.target.value})}
+                                onChange={(e) => setSpiderData({...spiderData, type: e.target.value})}
                             >
                                 <MenuItem value={"WebsiteSpider"}>Website Spider</MenuItem>
                                 <MenuItem value={"WebpageSpider"}>Webpage Spider</MenuItem>
                             </Select>
-                        </Grid>     
+                        </Grid>  
+                        <Grid xs={6}>
+                            <InputLabel>Keyword</InputLabel> 
+                            <Select
+                                multiline
+                                multiple
+                                displayEmpty
+                                value={spiderData.keyword}
+                                label="Type"
+                                onChange={(e) => setSpiderData({...spiderData, keyword: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value})}
+                                MenuProps={MenuProps}
+                                renderValue={(selected) => (
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {selected.map((value) => (
+                                      <Chip key={value} label={data?.data?.detail[value]?.name} />
+                                    ))}
+                                  </Box>
+                                )}
+                            >
+                              {data?.data?.detail.map((word) => (
+                                <MenuItem
+                                  key={word.id}
+                                  value={word.id}
+                                >
+                                  {word.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                        </Grid>       
                     </Grid>
                     {
-                      data.type == "WebsiteSpider" && (
+                      spiderData.type == "WebsiteSpider" && (
                         <Grid container spacing={0} sx={{ flexGrow: 0 }}>                                     
                             <Grid xs={4}>
                                 <TextField
@@ -169,9 +216,9 @@ export default function SpiderCreateModal(prop) {
                                     name="graph Depth"
                                     margin="normal"
                                     type="number"
-                                    defaultValue={data.graphdeep}
-                                    value={data.graphdeep}
-                                    onChange={(e) => setData({...data, graphdeep: e.target.value})}
+                                    defaultValue={spiderData.graphdeep}
+                                    value={spiderData.graphdeep}
+                                    onChange={(e) => setSpiderData({...spiderData, graphdeep: e.target.value})}
                                 />    
                             </Grid>
                             <Grid xs={4}>
@@ -180,9 +227,9 @@ export default function SpiderCreateModal(prop) {
                                     name="delay"
                                     margin="normal"
                                     type="number"
-                                    defaultValue={data.delay}
-                                    value={data.delay}
-                                    onChange={(e) => setData({...data, delay: e.target.value})}
+                                    defaultValue={spiderData.delay}
+                                    value={spiderData.delay}
+                                    onChange={(e) => setSpiderData({...spiderData, delay: e.target.value})}
                                 />  
                             </Grid>
                             <Grid xs={4}>
@@ -191,9 +238,9 @@ export default function SpiderCreateModal(prop) {
                                     name="max Thread"
                                     margin="normal"
                                     type="number"
-                                    defaultValue={data.maxThread}
-                                    value={data.maxThread}
-                                    onChange={(e) => setData({...data, maxThread: e.target.value})}
+                                    defaultValue={spiderData.maxThread}
+                                    value={spiderData.maxThread}
+                                    onChange={(e) => setSpiderData({...spiderData, maxThread: e.target.value})}
                                 />  
                             </Grid>
                         </Grid>
