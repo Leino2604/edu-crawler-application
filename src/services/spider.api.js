@@ -29,20 +29,38 @@ export const createWebsiteSpider = (userId, params) => http.post(`websiteSpider`
   "graphdeep": params.graphdeep,
   "maxThread": params.maxThread,
   "keyword": params.keyword,
-  "filetype": [
-    0
-  ],
-  "subfolders": [],
+  "filetype": params.filetype,
+  "subfolders": params.subfolders.map((subfoldersData) => ({
+    "url": subfoldersData.url,
+    "crawlRules": subfoldersData.crawlRules.map((crawlRulesData, index) => ({
+      "id": index + 1,
+      "tag": crawlRulesData.tag,
+      "HTMLClassName": crawlRulesData.HTMLClassName,
+      "HTMLIDName": crawlRulesData.HTMLIDName,
+      "ChildCrawlRuleID": 0
+    })),
+    "searchRules": subfoldersData.searchRules.map((crawlRulesData, index) => ({
+      "id": index + 1,
+      "tag": crawlRulesData.tag,
+      "HTMLClassName": crawlRulesData.HTMLClassName,
+      "HTMLIDName": crawlRulesData.HTMLIDName,
+      "ChildCrawlRuleID": 0
+    })),
+  })),
   "createdBy": userId
 });
 
 export const createWebpageSpider = (userId, params) => http.post(`webpageSpider`, {
   "url": params.url,
   "keyword": params.keyword,
-  "filetype": [
-    0
-  ],
-  "crawlRules": [],
+  "filetype": params.filetype,
+  "crawlRules": params.subfolders[0].crawlRules.map((crawlRulesData, index) => ({
+    "id": index + 1,
+    "tag": crawlRulesData.tag,
+    "HTMLClassName": crawlRulesData.HTMLClassName,
+    "HTMLIDName": crawlRulesData.HTMLIDName,
+    "ChildCrawlRuleID": 0
+  })),
   "createdBy": userId
 });
 

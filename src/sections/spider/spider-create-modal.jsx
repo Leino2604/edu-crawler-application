@@ -12,6 +12,8 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { getKeyword } from "../../services/keyword.api";
+import { getFileType } from "../../services/filetype.api";
+
 import { useQuery } from "@tanstack/react-query";
 import { updateSpiderBasicSettingById, updateSpiderUrlById, createWebpageSpider, createWebsiteSpider } from "../../services/spider.api";
 import Swal from "sweetalert2";
@@ -23,7 +25,7 @@ const style = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: "70%",
-    height: "50%",
+    height: "100%",
     bgcolor: "background.paper",
     border: "2px solid #000",
     boxShadow: 24,
@@ -41,6 +43,433 @@ const MenuProps = {
   },
 };
 
+function WebsiteCrawlRulesField({ spiderData, setSpiderData }) {
+  const updateTag = (subfolderID, id, tag) => {
+    spiderData.subfolders[subfolderID].crawlRules[id].tag = tag
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateHTMLClassName = (subfolderID, id, HTMLClassName) => {
+    spiderData.subfolders[subfolderID].crawlRules[id].HTMLClassName = HTMLClassName
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateHTMLIDName = (subfolderID, id, HTMLIDName) => {
+    spiderData.subfolders[subfolderID].crawlRules[id].HTMLIDName = HTMLIDName
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateSearchRuleTag = (subfolderID, id, tag) => {
+    spiderData.subfolders[subfolderID].searchRules[id].tag = tag
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateSearchRuleHTMLClassName = (subfolderID, id, HTMLClassName) => {
+    spiderData.subfolders[subfolderID].searchRules[id].HTMLClassName = HTMLClassName
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateSearchRuleHTMLIDName = (subfolderID, id, HTMLIDName) => {
+    spiderData.subfolders[subfolderID].searchRules[id].HTMLIDName = HTMLIDName
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateUrl = (subfolderID, url) => {
+    spiderData.subfolders[subfolderID].url = url
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})    
+  }
+
+  const addSubfolder = () => {
+    spiderData.subfolders.push({
+      "url": "",
+      "crawlRules": [
+        {
+          "tag": "p",
+          "HTMLClassName": "",
+          "HTMLIDName": ""
+        }
+      ],
+      "searchRules": [
+        {
+          "tag": "p",
+          "HTMLClassName": "",
+          "HTMLIDName": ""
+        }
+      ]
+    })
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const removeSubfolder = (id) => {
+    spiderData.subfolders.splice(id, 1)
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders}) 
+  }
+
+  const addCrawlRules = (subfolderID) => {
+    spiderData.subfolders[subfolderID].crawlRules.push({
+      "tag": "p",
+      "HTMLClassName": "",
+      "HTMLIDName": ""
+    })
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const removeCrawlRules = (subfolderID, id) => {
+    spiderData.subfolders[subfolderID].crawlRules.splice(id, 1)
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders}) 
+  }
+
+  const addSearchRules = (subfolderID) => {
+    spiderData.subfolders[subfolderID].searchRules.push({
+      "tag": "p",
+      "HTMLClassName": "",
+      "HTMLIDName": ""
+    })
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const removeSearchRules = (subfolderID, id) => {
+    spiderData.subfolders[subfolderID].searchRules.splice(id, 1)
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders}) 
+  }
+
+  return (
+    <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+        <Grid xs={2}>
+            <Typography id="modal-modal-title" variant="h4" component="h6">
+                Subfolder
+            </Typography>  
+        </Grid>
+        <Grid xs={10}>
+            <Button
+                variant="contained"
+                color="inherit"
+                startIcon={<Iconify icon="eva:plus-circle-outline" />}
+                onClick={
+                    () => addSubfolder()
+                }
+            >
+                Add
+            </Button>
+        </Grid>
+        {
+          spiderData.subfolders.map((subFolder, index) => (
+            <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+                <Grid xs={2}>
+                    <Typography id="modal-modal-title" variant="h5" component="h2">
+                        Subfolder {index + 1}
+                    </Typography>  
+                </Grid>
+                <Grid xs={12}>
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        startIcon={<Iconify icon="eva:close-fill" />}
+                        onClick={
+                            () => removeSubfolder(index)
+                        }
+                    >
+                      Remove
+                    </Button>
+                </Grid>
+                <Grid xs={12}>
+                    <TextField
+                        label={"Url"}
+                        name={"Url"}
+                        margin="Url"
+                        defaultValue={subFolder.url}
+                        value={subFolder.url}
+                        onChange={(e) => updateUrl(index, e.target.value)}
+                    />   
+                </Grid>  
+                <Grid xs={10}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Crawl Rules
+                    </Typography>  
+                </Grid>
+                <Grid xs={12}>
+                  <Button
+                      variant="contained"
+                      color="inherit"
+                      startIcon={<Iconify icon="eva:plus-circle-outline" />}
+                      onClick={
+                          () => addCrawlRules(index)
+                      }
+                  >
+                      Add
+                  </Button>
+                </Grid>
+                {
+                  subFolder.crawlRules.map((crawlRulesData, crawlRuleIndex) => (
+                    <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+                        <Grid xs={6}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Crawl Rule {crawlRuleIndex + 1}
+                            </Typography>  
+                        </Grid>
+                        <Grid xs={12}>
+                            <Button
+                                variant="contained"
+                                color="inherit"
+                                startIcon={<Iconify icon="eva:close-fill" />}
+                                onClick={
+                                    () => removeCrawlRules(index, crawlRuleIndex)
+                                }
+                            >
+                            </Button>
+                        </Grid>
+                        <Grid xs={4}>
+                            <TextField
+                                label={"Tag " + (crawlRuleIndex + 1)}
+                                name={"Tag " + (crawlRuleIndex + 1)}
+                                margin="normal"
+                                defaultValue={crawlRulesData.tag}
+                                value={crawlRulesData.tag}
+                                onChange={(e) => updateTag(index, crawlRuleIndex, e.target.value)}
+                            />   
+                        </Grid>      
+                        <Grid xs={4}>
+                            <TextField
+                                label={"HTMLClassName " + (crawlRuleIndex + 1)}
+                                name={"HTMLClassName " + (crawlRuleIndex + 1)}
+                                margin="normal"
+                                defaultValue={crawlRulesData.HTMLClassName}
+                                value={crawlRulesData.HTMLClassName}
+                                onChange={(e) => updateHTMLClassName(index, crawlRuleIndex, e.target.value)}
+                            />   
+                        </Grid>  
+                        <Grid xs={4}>
+                            <TextField
+                                label={"HTMLIDName " + (crawlRuleIndex + 1)}
+                                name={"HTMLIDName " + (crawlRuleIndex + 1)}
+                                margin="normal"
+                                defaultValue={crawlRulesData.HTMLIDName}
+                                value={crawlRulesData.HTMLIDName}
+                                onChange={(e) => updateHTMLIDName(index, crawlRuleIndex, e.target.value)}
+                            />   
+                        </Grid>      
+                    </Grid>                        
+                  ))
+                }
+                <Grid xs={10}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Search Rules
+                    </Typography>  
+                </Grid>
+                <Grid xs={12}>
+                  <Button
+                      variant="contained"
+                      color="inherit"
+                      startIcon={<Iconify icon="eva:plus-circle-outline" />}
+                      onClick={
+                          () => addSearchRules(index)
+                      }
+                  >
+                      Add
+                  </Button>
+                </Grid>
+                {
+                  subFolder.searchRules.map((crawlRulesData, crawlRuleIndex) => (
+                    <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+                        <Grid xs={6}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Search Rule {crawlRuleIndex + 1}
+                            </Typography>  
+                        </Grid>
+                        <Grid xs={12}>
+                            <Button
+                                variant="contained"
+                                color="inherit"
+                                startIcon={<Iconify icon="eva:close-fill" />}
+                                onClick={
+                                    () => removeSearchRules(index, crawlRuleIndex)
+                                }
+                            >
+                            </Button>
+                        </Grid>
+                        <Grid xs={4}>
+                            <TextField
+                                label={"Tag " + (crawlRuleIndex + 1)}
+                                name={"Tag " + (crawlRuleIndex + 1)}
+                                margin="normal"
+                                defaultValue={crawlRulesData.tag}
+                                value={crawlRulesData.tag}
+                                onChange={(e) => updateSearchRuleTag(index, crawlRuleIndex, e.target.value)}
+                            />   
+                        </Grid>      
+                        <Grid xs={4}>
+                            <TextField
+                                label={"HTMLClassName " + (crawlRuleIndex + 1)}
+                                name={"HTMLClassName " + (crawlRuleIndex + 1)}
+                                margin="normal"
+                                defaultValue={crawlRulesData.HTMLClassName}
+                                value={crawlRulesData.HTMLClassName}
+                                onChange={(e) => updateSearchRuleHTMLClassName(index, crawlRuleIndex, e.target.value)}
+                            />   
+                        </Grid>  
+                        <Grid xs={4}>
+                            <TextField
+                                label={"HTMLIDName " + (crawlRuleIndex + 1)}
+                                name={"HTMLIDName " + (crawlRuleIndex + 1)}
+                                margin="normal"
+                                defaultValue={crawlRulesData.HTMLIDName}
+                                value={crawlRulesData.HTMLIDName}
+                                onChange={(e) => updateSearchRuleHTMLIDName(index, crawlRuleIndex, e.target.value)}
+                            />   
+                        </Grid>      
+                    </Grid>                        
+                  ))
+                }
+            </Grid>
+          ))
+        }
+
+    </Grid>
+  );  
+}
+
+function WebpageCrawlRulesField({ spiderData, setSpiderData }) {
+  const updateTag = (id, tag) => {
+    spiderData.subfolders[0].crawlRules[id].tag = tag
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateHTMLClassName = (id, HTMLClassName) => {
+    spiderData.subfolders[0].crawlRules[id].HTMLClassName = HTMLClassName
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const updateHTMLIDName = (id, HTMLIDName) => {
+    spiderData.subfolders[0].crawlRules[id].HTMLIDName = HTMLIDName
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const addCrawlRules = () => {
+    spiderData.subfolders[0].crawlRules.push({
+      "tag": "p",
+      "HTMLClassName": "",
+      "HTMLIDName": ""
+    })
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders})
+  }
+
+  const removeCrawlRules = (id) => {
+    spiderData.subfolders[0].crawlRules.splice(id, 1)
+    setSpiderData({...spiderData, subfolders: spiderData.subfolders}) 
+  }
+
+  return (
+    <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+        <Grid xs={2}>
+            <Typography id="modal-modal-title" variant="h5" component="h6">
+                Crawl Rules 
+            </Typography>  
+        </Grid>
+        <Grid xs={10}>
+            <Button
+                variant="contained"
+                color="inherit"
+                startIcon={<Iconify icon="eva:plus-circle-outline" />}
+                onClick={
+                    () => addCrawlRules()
+                }
+            >
+                Add
+            </Button>
+        </Grid>
+        {spiderData.subfolders[0].crawlRules.map((crawlRulesData, index) => (
+            <Grid container spacing={0} sx={{ flexGrow: 0 }}>
+                <Grid xs={6}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Crawl Rule {index + 1}
+                    </Typography>  
+                </Grid>
+                <Grid xs={6}>
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        startIcon={<Iconify icon="eva:close-fill" />}
+                        onClick={
+                            () => removeCrawlRules(index)
+                        }
+                    >
+                    </Button>
+                </Grid>
+                <Grid xs={4}>
+                    <TextField
+                        label={"Tag " + (index + 1)}
+                        name={"Tag " + (index + 1)}
+                        margin="normal"
+                        defaultValue={crawlRulesData.tag}
+                        value={crawlRulesData.tag}
+                        onChange={(e) => updateTag(index, e.target.value)}
+                    />   
+                </Grid>      
+                <Grid xs={4}>
+                    <TextField
+                        label={"HTMLClassName " + (index + 1)}
+                        name={"HTMLClassName " + (index + 1)}
+                        margin="normal"
+                        defaultValue={crawlRulesData.HTMLClassName}
+                        value={crawlRulesData.HTMLClassName}
+                        onChange={(e) => updateHTMLClassName(index, e.target.value)}
+                    />   
+                </Grid>  
+                <Grid xs={4}>
+                    <TextField
+                        label={"HTMLIDName " + (index + 1)}
+                        name={"HTMLIDName " + (index + 1)}
+                        margin="normal"
+                        defaultValue={crawlRulesData.HTMLIDName}
+                        value={crawlRulesData.HTMLIDName}
+                        onChange={(e) => updateHTMLIDName(index, e.target.value)}
+                    />   
+                </Grid>      
+            </Grid>    
+        ))}
+    </Grid>
+  );  
+}
+
+function FileTypeSelector({ spiderData, setSpiderData }) {
+  const { data } = useQuery({
+    queryKey: ["fileType"],
+    queryFn: () => getFileType({ page: 0, filetypePerPage: 100 }),
+    keepPreviousData: true,
+  });
+
+  return (
+    <Grid xs={6}>
+        <InputLabel>FileType</InputLabel> 
+        <Select
+            multiline
+            multiple
+            displayEmpty
+            value={spiderData.filetype}
+            label="Type"
+            onChange={(e) => setSpiderData({...spiderData, filetype: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value})}
+            MenuProps={MenuProps}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={data?.data?.detail[value - 1]?.type} />
+                ))}
+              </Box>
+            )}
+        >
+          {data?.data?.detail.map((word) => (
+            <MenuItem
+              key={word.id}
+              value={word.id}
+            >
+              {word.type}
+            </MenuItem>
+          ))}
+        </Select>
+    </Grid>       
+  );
+}
+
 export default function SpiderCreateModal(prop) {
     const [spiderData, setSpiderData] = useState({
       "type": "WebsiteSpider",
@@ -50,6 +479,42 @@ export default function SpiderCreateModal(prop) {
       "maxThread": 1,
       "keyword": [],
       "filetype": [],
+      "subfolders": [
+        {
+          "url": "",
+          "crawlRules": [
+            {
+              "tag": "p",
+              "HTMLClassName": "",
+              "HTMLIDName": ""
+            }
+          ],
+          "searchRules": [
+            {
+              "tag": "a",
+              "HTMLClassName": "",
+              "HTMLIDName": ""
+            }
+          ]
+        },
+        {
+          "url": "",
+          "crawlRules": [
+            {
+              "tag": "p",
+              "HTMLClassName": "",
+              "HTMLIDName": ""
+            }
+          ],
+          "searchRules": [
+            {
+              "tag": "a",
+              "HTMLClassName": "",
+              "HTMLIDName": ""
+            }
+          ]
+        }
+      ],
     })
 
     const profile = JSON.parse(localStorage.getItem("profile"))
@@ -59,7 +524,6 @@ export default function SpiderCreateModal(prop) {
         queryFn: () => getKeyword({ page: 0, keywordPerPage: 100 }),
         keepPreviousData: true,
     });
-    const keywordData = data?.data?.detail ? data?.data?.detail : []
 
     const handleCreateWebpageSpider = async () => {
       const response = await createWebpageSpider(
@@ -78,6 +542,52 @@ export default function SpiderCreateModal(prop) {
             icon: "success",
             title: "\n\nCreate webpage spider successfully. Please refresh page.",
         });
+
+        setSpiderData({
+          "type": "WebsiteSpider",
+          "url": "",
+          "delay": 2,
+          "graphdeep": 3,
+          "maxThread": 1,
+          "keyword": [],
+          "filetype": [],
+          "subfolders": [
+            {
+              "url": "",
+              "crawlRules": [
+                {
+                  "tag": "p",
+                  "HTMLClassName": "",
+                  "HTMLIDName": ""
+                }
+              ],
+              "searchRules": [
+                {
+                  "tag": "p",
+                  "HTMLClassName": "",
+                  "HTMLIDName": ""
+                }
+              ]
+            },
+            {
+              "url": "",
+              "crawlRules": [
+                {
+                  "tag": "p",
+                  "HTMLClassName": "",
+                  "HTMLIDName": ""
+                }
+              ],
+              "searchRules": [
+                {
+                  "tag": "p",
+                  "HTMLClassName": "",
+                  "HTMLIDName": ""
+                }
+              ]
+            }
+          ],
+        })
       } else {
         Swal.mixin({
           toast: true,
@@ -157,9 +667,9 @@ export default function SpiderCreateModal(prop) {
                     }}
                 >
                     <Grid container spacing={0} sx={{ flexGrow: 0 }}>    
-                        <Grid xs={8}>
+                        <Grid xs={4}>
                             <TextField
-                                label="url"
+                                label="Url"
                                 name="url"
                                 margin="normal"
                                 defaultValue={spiderData.url}
@@ -191,7 +701,7 @@ export default function SpiderCreateModal(prop) {
                                 renderValue={(selected) => (
                                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                     {selected.map((value) => (
-                                      <Chip key={value} label={data?.data?.detail[value]?.name} />
+                                      <Chip key={value} label={data?.data?.detail[value - 1]?.name} />
                                     ))}
                                   </Box>
                                 )}
@@ -206,6 +716,10 @@ export default function SpiderCreateModal(prop) {
                               ))}
                             </Select>
                         </Grid>       
+                        <FileTypeSelector 
+                            spiderData={spiderData}
+                            setSpiderData={setSpiderData}
+                        />
                     </Grid>
                     {
                       spiderData.type == "WebsiteSpider" && (
@@ -246,7 +760,22 @@ export default function SpiderCreateModal(prop) {
                         </Grid>
                       )
                     }
-
+                    {
+                        spiderData.type == "WebpageSpider" && (
+                            <WebpageCrawlRulesField 
+                                spiderData={spiderData}
+                                setSpiderData={setSpiderData}
+                            />
+                        )
+                    }
+                    {
+                        spiderData.type == "WebsiteSpider" && (
+                            <WebsiteCrawlRulesField 
+                                spiderData={spiderData}
+                                setSpiderData={setSpiderData}
+                            />
+                        )
+                    }
                 </form>
             </Box>
         </Modal>

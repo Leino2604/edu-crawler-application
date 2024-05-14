@@ -112,7 +112,7 @@ export default function SpiderDetailModal(prop) {
                             Allowed File Type:
                         </Grid>
                         <Grid xs={8}>
-                            {FileTypeList.length == 0 ? "All" : FileTypeList}
+                            {FileTypeList.length == 0 ? "All" : FileTypeList.join(', ')}
                         </Grid>
                         <Grid xs={4}>
                             <Typography id="modal-modal-title" variant="h6" component="h2">
@@ -135,13 +135,13 @@ export default function SpiderDetailModal(prop) {
                             Last Run Date:
                         </Grid>
                         <Grid xs={8}>
-                            {LastRunDate}
+                            {LastRunDate ? LastRunDate : "This spider has never been launched"}
                         </Grid>
                         <Grid xs={4}>
                             Last End Date:
                         </Grid>
                         <Grid xs={8}>
-                            {LastEndDate}
+                            {LastEndDate ? LastEndDate : "This spider has never been launched"}
                         </Grid>
                         <Grid xs={4}>
                             Run Time:
