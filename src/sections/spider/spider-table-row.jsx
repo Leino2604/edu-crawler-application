@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import PropTypes from "prop-types";
 
+import Swal from "sweetalert2";
 import Stack from "@mui/material/Stack";
 import Popover from "@mui/material/Popover";
 import TableRow from "@mui/material/TableRow";
@@ -12,6 +14,12 @@ import IconButton from "@mui/material/IconButton";
 
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
+import SpiderDetailModal from "./spider-detail-modal";
+import SpiderEditBasicModal from "./spider-edit-basic-modal";
+import SpiderEditAdvanceModal from "./spider-edit-advance-modal";
+import { useQuery } from "@tanstack/react-query";
+import { getSpiderById } from "../../services/spider.api";
+import { runSpiderById, stopSpiderById, deleteSpiderById } from "../../services/spider.api";
 
 // ----------------------------------------------------------------------
 
@@ -20,10 +28,20 @@ export default function SpiderTableRow({
     id,
     url,
     crawlStatus,
+    lastRunDate,
     status,
     handleClick,
 }) {
     const [open, setOpen] = useState(null);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const { data } = useQuery({
+        queryKey: ["spider", id],
+        queryFn: () => getSpiderById(id),
+    });
+
+    const profile = JSON.parse(localStorage.getItem("profile"))
 
     const handleOpenMenu = (event) => {
         setOpen(event.currentTarget);
@@ -32,6 +50,90 @@ export default function SpiderTableRow({
     const handleCloseMenu = () => {
         setOpen(null);
     };
+
+    const deleteSpider = async () => {
+      const response = await deleteSpiderById(id)
+
+      if (response.status == 200) {
+        Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: "true",
+        }).fire({
+            icon: "success",
+            title: "\n\nDelete spider " + id + " successfully. Please refresh page.",
+        });
+      } else {
+        Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: "true",
+        }).fire({
+            icon: "error",
+            title: "\n\nDelete failed"
+        });
+      }
+    }
+
+    const runSpider = async () => {
+      const response = await runSpiderById(id, { user_id: profile.id })
+
+      if (response.status == 200) {
+        Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: "true",
+        }).fire({
+            icon: "success",
+            title: "\n\nRun spider " + id + " successfully. Please refresh page.",
+        });
+      } else {
+        Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: "true",
+        }).fire({
+            icon: "error",
+            title: "\n\nRun failed"
+        });
+      }
+    }
+
+    const stopSpider = async () => {
+      const response = await stopSpiderById(id)
+
+      if (response.status == 200) {
+        Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: "true",
+        }).fire({
+            icon: "success",
+            title: "\n\nStop spider " + id + " successfully. Please refresh page.",
+        });
+      } else {
+        Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: "true",
+        }).fire({
+            icon: "error",
+            title: "\n\nStop failed"
+        });
+      }
+    }
 
     return (
         <>
@@ -52,15 +154,13 @@ export default function SpiderTableRow({
 
                 <TableCell>{url}</TableCell>
 
-                <TableCell>{crawlStatus}</TableCell>
+                <TableCell>{lastRunDate}</TableCell>
 
                 <TableCell>
                     <Label
                         color={
                             (status === "Available" && "success") ||
-                            (status === "Running" && "info") ||
-                            (status === "Closing" && "warning") ||
-                            (status === "Suspend" && "error")
+                            (status === "Running" && "info")
                         }
                     >
                         {status}
@@ -84,19 +184,69 @@ export default function SpiderTableRow({
                     sx: { width: 140 },
                 }}
             >
-                <MenuItem onClick={handleCloseMenu}>
+                <MenuItem 
+                    onClick={
+                      (status === "Available" && runSpider) ||
+                      (status === "Running" && stopSpider)
+                    }
+                    sx={{ 
+                      color: (status === "Available" && "success.main") || (status === "Running" && "error.main")
+                    }}
+                >
+                    <Iconify 
+                      icon={(status === "Available" && "eva:arrow-right-outline")  || (status === "Running" && "eva:stop-circle-outline")}
+                      sx={{ mr: 2 }} 
+                    />
+                    {
+                      (status === "Available" && "Run") ||(status === "Running" && "Stop")
+                    }
+                </MenuItem>
+
+                <MenuItem 
+                  onClick={() => {
+                    setShowViewModal(true);
+                    handleCloseMenu();
+                  }}
+                >
+                    <Iconify icon="eva:alert-circle-outline" sx={{ mr: 2 }} />
+                    See Detail
+                </MenuItem>
+
+                <MenuItem 
+                  onClick={() => {
+                    setShowEditModal(true);
+                    handleCloseMenu();
+                  }}
+                >
                     <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
                     Edit
                 </MenuItem>
 
                 <MenuItem
-                    onClick={handleCloseMenu}
+                    onClick={() => {
+                      deleteSpider()
+                    }}
                     sx={{ color: "error.main" }}
                 >
                     <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
                     Delete
                 </MenuItem>
             </Popover>
+            <SpiderDetailModal
+                open={showViewModal}
+                article={data?.data || {}}
+                onClose={() => setShowViewModal(false)}
+            />
+            {/*<SpiderEditBasicModal
+                open={showEditModal}
+                article={data?.data || {}}
+                onClose={() => setShowEditModal(false)}
+                  />*/}
+            <SpiderEditAdvanceModal
+                open={showEditModal}
+                article={data?.data || {}}
+                onClose={() => setShowEditModal(false)}
+            />
         </>
     );
 }
