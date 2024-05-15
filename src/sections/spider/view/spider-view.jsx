@@ -142,6 +142,14 @@ export default function SpiderPage() {
                                         id: "Last Run Date",
                                         label: "Last Run Date",
                                     },
+                                    {
+                                      id: "Last Run New Article",
+                                      label: "Last Run New Article",
+                                    },
+                                    {
+                                      id: "Last Run Updated Article",
+                                      label: "Last Run Updated Article",
+                                    },
                                     { id: "Status", label: "Status" },
                                     { id: "" },
                                 ]}
@@ -157,6 +165,8 @@ export default function SpiderPage() {
                                             status={row.Status}
                                             crawlStatus={row.CrawlStatus}
                                             lastRunDate={row.LastRunDate}
+                                            lastRunNewArticle={row.LastRunNewArticle}
+                                            lastRunUpdateArticle={row.LastRunUpdateArticle}
                                             selected={
                                                 selected.indexOf(row.Id) !== -1
                                             }

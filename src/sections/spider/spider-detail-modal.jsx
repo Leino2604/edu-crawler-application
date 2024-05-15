@@ -100,7 +100,7 @@ function WebsiteSpiderSubfolderModal({ spiderId }) {
 }
 
 export default function SpiderDetailModal(prop) {
-    const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread, Keyword, FileType, LastRunDate, LastEndDate, RunTime, TotalPage} = prop.article;
+    const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread, Keyword, FileType, LastRunDate, LastEndDate, RunTime, TotalPage, LastRunNewArticle, LastRunUpdateArticle, LastRunUnchangeArticle} = prop.article;
     const KeywordList = Keyword ? Keyword.map((data) => data.Value) : []
     const FileTypeList = FileType ? FileType.map((data) => data.Value) : []
 
@@ -226,9 +226,29 @@ export default function SpiderDetailModal(prop) {
                           </Grid>
                         )}
                         {Type == "WebsiteSpider" && (
-                          <Grid xs={8}>
-                              {TotalPage}
-                          </Grid>
+                          <>
+                              <Grid xs={8}>
+                                  {TotalPage}
+                              </Grid>
+                              <Grid xs={4}>
+                                  Last Run New Article:
+                              </Grid>
+                              <Grid xs={8}>
+                                  {LastRunNewArticle}
+                              </Grid>
+                              <Grid xs={4}>
+                                  Last Run Update Article:
+                              </Grid>
+                              <Grid xs={8}>
+                                  {LastRunUpdateArticle}
+                              </Grid>
+                              <Grid xs={4}>
+                                  Last Run Unchange Article:
+                              </Grid>
+                              <Grid xs={8}>
+                                  {LastRunUnchangeArticle}
+                              </Grid>
+                          </>
                         )}
                     </Grid>
                 </form>
