@@ -4,6 +4,8 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { TextField } from "@mui/material";
+import { deleteArticleById } from "../../services/article.api";
+import Swal from "sweetalert2";
 
 import Iconify from "../../components/iconify";
 
@@ -23,6 +25,34 @@ const style = {
 export default function DeleteModal(prop) {
     const { id, title } = prop.article;
 
+    const handleDeleteArticle = async () => {
+      const response = await deleteArticleById(id)
+
+      if (response.status == 200) {
+        Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: "true",
+        }).fire({
+            icon: "success",
+            title: "\n\nDelete article successfully. Please refresh page.",
+        });
+      } else {
+        Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: "true",
+        }).fire({
+            icon: "error",
+            title: "\n\nDelete article failed"
+        });
+      }
+    }
+
     return (
         <Modal
             {...prop}
@@ -40,6 +70,7 @@ export default function DeleteModal(prop) {
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="eva:checkmark-fill" />}
+                    onClick={handleDeleteArticle}
                 >
                     Confirm
                 </Button>

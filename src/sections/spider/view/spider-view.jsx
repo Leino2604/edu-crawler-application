@@ -119,11 +119,11 @@ export default function SpiderPage() {
             </Stack>
 
             <Card>
-                <SpiderTableToolbar
+                {/*<SpiderTableToolbar
                     numSelected={selected.length}
                     filterName={filterName}
                     onFilterName={handleFilterByName}
-                />
+                />*/}
 
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
