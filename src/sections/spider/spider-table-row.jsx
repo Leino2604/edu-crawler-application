@@ -29,6 +29,8 @@ export default function SpiderTableRow({
     url,
     crawlStatus,
     lastRunDate,
+    lastRunNewArticle,
+    lastRunUpdateArticle,
     status,
     handleClick,
 }) {
@@ -154,7 +156,7 @@ export default function SpiderTableRow({
 
                 <TableCell>{url}</TableCell>
 
-                <TableCell>{lastRunDate}</TableCell>
+                <TableCell>{lastRunDate ? lastRunDate : "Hasn't been launched"}</TableCell>
 
                 <TableCell>
                     <Label
@@ -166,6 +168,10 @@ export default function SpiderTableRow({
                         {status}
                     </Label>
                 </TableCell>
+
+                <TableCell>{lastRunNewArticle}</TableCell>
+
+                <TableCell>{lastRunUpdateArticle}</TableCell>
 
                 <TableCell align="right">
                     <IconButton onClick={handleOpenMenu}>
