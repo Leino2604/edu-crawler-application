@@ -158,6 +158,10 @@ export default function SpiderTableRow({
 
                 <TableCell>{lastRunDate ? lastRunDate : "Hasn't been launched"}</TableCell>
 
+                <TableCell>{lastRunNewArticle}</TableCell>
+
+                <TableCell>{lastRunUpdateArticle}</TableCell>
+
                 <TableCell>
                     <Label
                         color={
@@ -168,10 +172,6 @@ export default function SpiderTableRow({
                         {status}
                     </Label>
                 </TableCell>
-
-                <TableCell>{lastRunNewArticle}</TableCell>
-
-                <TableCell>{lastRunUpdateArticle}</TableCell>
 
                 <TableCell align="right">
                     <IconButton onClick={handleOpenMenu}>
