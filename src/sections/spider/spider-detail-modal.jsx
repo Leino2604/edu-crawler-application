@@ -7,7 +7,9 @@ import { Unstable_Grid as Grid } from '@mui/system';
 import { TextField } from "@mui/material";
 import Button from "@mui/material/Button";
 import Iconify from "../../components/iconify";
-
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getWebpageSpiderCrawlRulesById, getWebsiteSpiderCrawlRulesById, getWebsiteSpiderSearchRulesById } from "../../services/spider.api";
 
 const style = {
     position: "absolute",
@@ -21,6 +23,81 @@ const style = {
     boxShadow: 24,
     p: 4,
 };
+
+function WebpageSpiderCrawlRulesModal({ spiderId }) {
+  const { data } = useQuery({
+    queryKey: ["webpageSpiderCrawlRules"],
+    queryFn: () => getWebpageSpiderCrawlRulesById(spiderId),
+    keepPreviousData: true,
+  });
+
+  return (
+    <Grid xs={12}>
+        {data?.data?.map((crawlRulesData, index) => (
+          <Grid xs={12}>
+            {crawlRulesData.Tag} {crawlRulesData.ClassName && "." + crawlRulesData.ClassName} {crawlRulesData.IDName && "#" + crawlRulesData.IDName}
+          </Grid>
+        ))}
+    </Grid>
+  );
+}
+
+function WebsiteSpiderCrawlRulesModal({ spiderId }) {
+  const { data } = useQuery({
+    queryKey: ["websiteSpiderCrawlRules"],
+    queryFn: () => getWebsiteSpiderCrawlRulesById(spiderId),
+    keepPreviousData: true,
+  });
+
+  return (
+    <Grid xs={12}>
+        <Grid xs={12}>
+          <h4>Crawl Rules</h4>
+        </Grid>
+        {data?.data?.map((crawlRulesData, index) => (
+          <Grid xs={12}>
+            Subfolder {crawlRulesData.Name} : {crawlRulesData.Tag} {crawlRulesData.ClassName && "." + crawlRulesData.ClassName} {crawlRulesData.IDName && "#" + crawlRulesData.IDName}
+          </Grid>
+        ))}
+    </Grid>
+  );
+}
+
+function WebsiteSpiderSearchRulesModal({ spiderId }) {
+  const { data } = useQuery({
+    queryKey: ["websiteSpiderSearchRules"],
+    queryFn: () => getWebsiteSpiderSearchRulesById(spiderId),
+    keepPreviousData: true,
+  });
+
+  return (
+    <Grid xs={12}>
+        <Grid xs={12}>
+          <h4>Search Rules</h4>
+        </Grid>
+        {data?.data?.map((crawlRulesData, index) => (
+          <Grid xs={12}>
+            Subfolder {crawlRulesData.Name} : {crawlRulesData.Tag} {crawlRulesData.ClassName && "." + crawlRulesData.ClassName} {crawlRulesData.IDName && "#" + crawlRulesData.IDName}
+          </Grid>
+        ))}
+    </Grid>
+  );
+}
+
+function WebsiteSpiderSubfolderModal({ spiderId }) {
+  return (
+    <Grid xs={12}>    
+        <Grid container spacing={0} sx={{ flexGrow: 0 }}>    
+            <Grid xs={6}>
+                <WebsiteSpiderCrawlRulesModal spiderId={spiderId} />
+            </Grid>
+            <Grid xs={6}>
+                <WebsiteSpiderSearchRulesModal spiderId={spiderId} />
+            </Grid>
+        </Grid>
+    </Grid>       
+  );
+}
 
 export default function SpiderDetailModal(prop) {
     const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread, Keyword, FileType, LastRunDate, LastEndDate, RunTime, TotalPage} = prop.article;
@@ -40,15 +117,7 @@ export default function SpiderDetailModal(prop) {
                             Spider {Id}
                         </Typography>
                     </Grid>
-                    <Grid xs={2}>
-                        <Button
-                            variant="contained"
-                            color="inherit"
-                            startIcon={<Iconify icon="eva:brush-outline" />}
-                        >
-                            Edit
-                        </Button>
-                    </Grid>
+
                 </Grid>
                 <form
                     style={{
@@ -114,20 +183,22 @@ export default function SpiderDetailModal(prop) {
                         <Grid xs={8}>
                             {FileTypeList.length == 0 ? "All" : FileTypeList.join(', ')}
                         </Grid>
-                        <Grid xs={4}>
+                        <Grid xs={12}>
                             <Typography id="modal-modal-title" variant="h6" component="h2">
-                                Crawl Rules
+                                {Type == "WebsiteSpider" && "Subfolders"}
+                                {Type == "WebpageSpider" && "Crawl Rules"}
                             </Typography>
                         </Grid>
-                        <Grid xs={8}>
-                            <Button
-                                variant="contained"
-                                color="inherit"
-                                startIcon={<Iconify icon="eva:alert-circle-outline" />}
-                            >
-                                Detail
-                            </Button>
-                        </Grid> 
+                        {Type == "WebsiteSpider" && (
+                          <WebsiteSpiderSubfolderModal
+                            spiderId={Id}
+                          />
+                        )}
+                        {Type == "WebpageSpider" && (
+                          <WebpageSpiderCrawlRulesModal 
+                              spiderId={Id}
+                          />
+                        )}
                         <Grid xs={12}>
                             <h3>Spider Stats</h3>
                         </Grid>

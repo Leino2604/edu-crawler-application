@@ -16,6 +16,7 @@ import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import SpiderDetailModal from "./spider-detail-modal";
 import SpiderEditBasicModal from "./spider-edit-basic-modal";
+import SpiderEditAdvanceModal from "./spider-edit-advance-modal";
 import { useQuery } from "@tanstack/react-query";
 import { getSpiderById } from "../../services/spider.api";
 import { runSpiderById, stopSpiderById, deleteSpiderById } from "../../services/spider.api";
@@ -236,7 +237,12 @@ export default function SpiderTableRow({
                 article={data?.data || {}}
                 onClose={() => setShowViewModal(false)}
             />
-            <SpiderEditBasicModal
+            {/*<SpiderEditBasicModal
+                open={showEditModal}
+                article={data?.data || {}}
+                onClose={() => setShowEditModal(false)}
+                  />*/}
+            <SpiderEditAdvanceModal
                 open={showEditModal}
                 article={data?.data || {}}
                 onClose={() => setShowEditModal(false)}

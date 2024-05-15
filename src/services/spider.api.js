@@ -16,10 +16,38 @@ export const stopSpiderById = (id) => http.post(`spiders/${id}/stop`);
 
 export const updateSpiderBasicSettingById = (params) => http.put(`websiteSpider/{spider_id}/basicSetting`, params);
 
-export const updateSpiderUrlById = (id, url) => http.put(`spiders/${id}?url=${url}&status=Available&is_academic=true`, {
-  "keyword_ids": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40],
-  "filetype_ids": []
+export const updateSpiderUrlById = (id, url, keyword, filetype) => http.put(`spiders/${id}?url=${url}&status=Available&is_academic=true`, {
+  "keyword_ids": keyword,
+  "filetype_ids": filetype
 });
+
+export const updateWebpageSpiderCrawlRulesById = (id, params) => 
+  http.put(`webpageSpider/${id}/crawlRules`, params.map((crawlRulesData, index) => ({
+    "id": index + 1,
+    "tag": crawlRulesData.tag,
+    "HTMLClassName": crawlRulesData.HTMLClassName,
+    "HTMLIDName": crawlRulesData.HTMLIDName,
+    "ChildCrawlRuleID": 0
+  })));
+
+  export const updateWebsiteSpiderSubfolderById = (id, params) => 
+    http.put(`websiteSpider/${id}/subfolder`, params.subfolders.map((subfoldersData) => ({
+      "url": subfoldersData.url,
+      "crawlRules": subfoldersData.crawlRules.map((crawlRulesData, index) => ({
+        "id": index + 1,
+        "tag": crawlRulesData.tag,
+        "HTMLClassName": crawlRulesData.HTMLClassName,
+        "HTMLIDName": crawlRulesData.HTMLIDName,
+        "ChildCrawlRuleID": 0
+      })),
+      "searchRules": subfoldersData.searchRules.map((crawlRulesData, index) => ({
+        "id": index + 1,
+        "tag": crawlRulesData.tag,
+        "HTMLClassName": crawlRulesData.HTMLClassName,
+        "HTMLIDName": crawlRulesData.HTMLIDName,
+        "ChildCrawlRuleID": 0
+      })),
+    })));
 
 export const deleteSpiderById = (id) => http.delete(`spiders/${id}`);
 
@@ -64,3 +92,8 @@ export const createWebpageSpider = (userId, params) => http.post(`webpageSpider`
   "createdBy": userId
 });
 
+export const getWebpageSpiderCrawlRulesById = (id) => http.get(`webpageSpider/${id}/crawl_rule`);
+
+export const getWebsiteSpiderCrawlRulesById = (id) => http.get(`websiteSpider/${id}/crawlRules`);
+
+export const getWebsiteSpiderSearchRulesById = (id) => http.get(`websiteSpider/${id}/searchRules`);
