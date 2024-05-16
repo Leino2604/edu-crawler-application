@@ -175,11 +175,11 @@ export default function KeywordPage() {
             </Stack>
 
             <Card>
-                <KeywordTableToolbar
+                {/* <KeywordTableToolbar
                     numSelected={selected.length}
                     filterName={filterName}
                     onFilterName={handleFilterByName}
-                />
+                /> */}
 
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>

@@ -15,9 +15,16 @@ import IconButton from "@mui/material/IconButton";
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import EditModal from "./edit-modal";
-import DeleteModal from "./delete-modal";
 import { useQuery } from "@tanstack/react-query";
 import { exportXls, getArticleById } from "../../services/article.api";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+} from "@mui/material";
 
 // ----------------------------------------------------------------------
 
@@ -27,10 +34,12 @@ export default function ArticleTableRow({
     title,
     url,
     handleClick,
+    handleDeleteArticle,
 }) {
     const [data, setData] = useState(null);
     const [open, setOpen] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
 
     const { data: articleInfo } = useQuery({
         queryKey: ["articleinfo", id],
@@ -96,15 +105,12 @@ export default function ArticleTableRow({
                         handleCloseMenu();
                     }}
                 >
-
                     <Iconify icon="lets-icons:view-alt-fill" sx={{ mr: 2 }} />
-
                     View
                 </MenuItem>
 
                 <MenuItem
                     onClick={() => {
-
                         console.log(Object.keys(articleXls?.data));
                         console.log(Object.keys(articleXls?.data).splice(7, 8));
                         const workbook = XLSX.utils.book_new();
@@ -168,10 +174,19 @@ export default function ArticleTableRow({
                         // Save the blob as a file
                         saveAs(blob, "exportedData.xlsx");
                     }}
-
                 >
                     <Iconify icon="material-symbols:download" sx={{ mr: 2 }} />
                     Export
+                </MenuItem>
+                <MenuItem
+                    onClick={() => {
+                        setOpen(null);
+                        setDeleteOpen(true);
+                    }}
+                    sx={{ color: "error.main" }}
+                >
+                    <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+                    Delete
                 </MenuItem>
             </Popover>
             <EditModal
@@ -179,11 +194,46 @@ export default function ArticleTableRow({
                 article={articleInfo?.data || {}}
                 onClose={() => setShowEditModal(false)}
             />
-            <DeleteModal
-                open={showDeleteModal}
-                article={data?.data || {}}
-                onClose={() => setShowDeleteModal(false)}            
-            />
+            <Dialog
+                open={deleteOpen}
+                onClose={() => {
+                    setDeleteOpen(false);
+                }}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Use Google's location service?"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Let Google help apps determine location. This means
+                        sending anonymous location data to Google, even when no
+                        apps are running.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => {
+                            setDeleteOpen(false);
+                        }}
+                        variant="outlined"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleDeleteArticle(id);
+                            setDeleteOpen(false);
+                        }}
+                        autoFocus
+                        variant="contained"
+                        color="error"
+                    >
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

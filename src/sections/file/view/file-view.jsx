@@ -118,21 +118,21 @@ export default function FilePage() {
             >
                 <Typography variant="h4">File</Typography>
 
-                <Button
+                {/* <Button
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
                 >
                     New File
-                </Button>
+                </Button> */}
             </Stack>
 
             <Card>
-                <FileTableToolbar
+                {/* <FileTableToolbar
                     numSelected={selected.length}
                     filterName={filterName}
                     onFilterName={handleFilterByName}
-                />
+                /> */}
 
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>

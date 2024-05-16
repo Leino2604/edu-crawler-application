@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -14,7 +14,7 @@ import TablePagination from "@mui/material/TablePagination";
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
-import { getArticle } from "../../../services/article.api";
+import { deleteArticle, getArticle } from "../../../services/article.api";
 
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
@@ -33,7 +33,11 @@ export default function ArticlePage() {
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
-    const { data } = useQuery({
+    const deleteMutation = useMutation({
+        mutationFn: (body) => deleteArticle(body),
+    });
+
+    const { data, refetch } = useQuery({
         queryKey: ["article", page, rowsPerPage],
         queryFn: () => getArticle({ page: page, articlePerPage: rowsPerPage }),
         placeholderData: keepPreviousData,
@@ -96,6 +100,14 @@ export default function ArticlePage() {
 
     const notFound = !dataFiltered.length && !!filterName;
 
+    const handleDeleteArticle = (id) => {
+        deleteMutation.mutate(id, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
+
     return (
         <Container>
             <Stack
@@ -153,6 +165,9 @@ export default function ArticlePage() {
                                             }
                                             handleClick={(event) =>
                                                 handleClick(event, row.id)
+                                            }
+                                            handleDeleteArticle={
+                                                handleDeleteArticle
                                             }
                                         />
                                     ))}

@@ -69,16 +69,16 @@ export default function Nav({ openNav, onCloseNav }) {
                 path: "/spider",
                 icon: icon("ic_spider"),
             },
-            {
-                title: "website spider",
-                path: "/websitespider",
-                icon: icon("ic_spider"),
-            },
-            {
-                title: "webpage spider",
-                path: "/webpagespider",
-                icon: icon("ic_spider"),
-            },
+            // {
+            //     title: "website spider",
+            //     path: "/websitespider",
+            //     icon: icon("ic_spider"),
+            // },
+            // {
+            //     title: "webpage spider",
+            //     path: "/webpagespider",
+            //     icon: icon("ic_spider"),
+            // },
             {
                 title: "keyword",
                 path: "/keyword",

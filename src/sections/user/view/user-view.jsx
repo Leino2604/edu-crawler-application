@@ -52,6 +52,7 @@ export default function UserPage() {
         queryKey: ["user", page, rowsPerPage],
         queryFn: () => getUser({ page: page, userPerPage: rowsPerPage }),
     });
+    console.log(data);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -117,6 +118,7 @@ export default function UserPage() {
         filterName,
     });
 
+    console.log(dataFiltered);
     const notFound = !dataFiltered.length && !!filterName;
 
     const handleDeleteUser = (id) => {
@@ -148,11 +150,11 @@ export default function UserPage() {
             </Stack>
 
             <Card>
-                <UserTableToolbar
+                {/* <UserTableToolbar
                     numSelected={selected.length}
                     filterName={filterName}
                     onFilterName={handleFilterByName}
-                />
+                /> */}
 
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
@@ -174,10 +176,10 @@ export default function UserPage() {
                             />
                             <TableBody>
                                 {dataFiltered
-                                    .slice(
-                                        page * rowsPerPage,
-                                        page * rowsPerPage + rowsPerPage
-                                    )
+                                    // .slice(
+                                    //     page * rowsPerPage,
+                                    //     page * rowsPerPage + rowsPerPage
+                                    // )
                                     .map((row) => (
                                         <UserTableRow
                                             key={row.id}

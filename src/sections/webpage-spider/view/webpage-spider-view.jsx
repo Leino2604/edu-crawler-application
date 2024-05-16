@@ -116,11 +116,11 @@ export default function WebpageSpiderPage() {
             </Stack>
 
             <Card>
-                <WebpageSpiderTableToolbar
+                {/* <WebpageSpiderTableToolbar
                     numSelected={selected.length}
                     filterName={filterName}
                     onFilterName={handleFilterByName}
-                />
+                /> */}
 
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
