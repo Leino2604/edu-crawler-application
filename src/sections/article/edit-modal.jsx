@@ -15,6 +15,7 @@ const style = {
     border: "2px solid #000",
     boxShadow: 24,
     p: 4,
+    overflow: "auto",
 };
 
 export default function EditModal(prop) {
@@ -42,25 +43,28 @@ export default function EditModal(prop) {
                         name="url"
                         margin="normal"
                         defaultValue={url}
-
-                        disabled
-
+                        InputProps={{
+                            readOnly: true,
+                        }}
                     />
                     <TextField
                         name="domain"
                         label="Domain"
                         margin="normal"
                         defaultValue={domain}
-
-                        disabled
+                        InputProps={{
+                            readOnly: true,
+                        }}
                     />
 
                     <TextField
                         label="Keyword"
                         name="keyword"
                         margin="normal"
-                        defaultValue={keyword?.map(data => data.name)}
-                        disabled
+                        defaultValue={keyword?.map((data) => data.name)}
+                        InputProps={{
+                            readOnly: true,
+                        }}
                     />
 
                     <TextField
@@ -68,12 +72,13 @@ export default function EditModal(prop) {
                         name="lastUpdate"
                         margin="normal"
                         defaultValue={lastUpdate}
-                        disabled
-
+                        InputProps={{
+                            readOnly: true,
+                        }}
                     />
 
                     <TextField
-                        rows={15}
+                        rows={13}
                         multiline
                         name="content"
                         label="Content"
