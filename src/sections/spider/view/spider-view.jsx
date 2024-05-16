@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -36,7 +36,7 @@ export default function SpiderPage() {
     const { data } = useQuery({
         queryKey: ["spider", page, rowsPerPage],
         queryFn: () => getSpider({ page: page, spider_per_page: rowsPerPage }),
-        keepPreviousData: true,
+        placeholderData: keepPreviousData,
     });
 
     const handleSort = (event, id) => {

@@ -8,7 +8,7 @@ export const login = (body) => {
 };
 
 export const register = (body) =>
-    // axios.post(`${API_BASE_URL}/auth/register.php`, body);
-    {
-        console.log(body);
-    };
+    axios.post(
+        "https://edu-crawler-application-be.onrender.com/api/auth/signup",
+        body
+    );

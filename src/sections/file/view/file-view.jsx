@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -14,7 +14,7 @@ import TablePagination from "@mui/material/TablePagination";
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
-import { getFile } from "../../../services/file.api";
+import { deleteFile, getFile } from "../../../services/file.api";
 
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
@@ -33,10 +33,14 @@ export default function FilePage() {
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
-    const { data } = useQuery({
+    const deleteMutation = useMutation({
+        mutationFn: (body) => deleteFile(body),
+    });
+
+    const { data, refetch } = useQuery({
         queryKey: ["file", page, rowsPerPage],
         queryFn: () => getFile({ page: page, file_per_page: rowsPerPage }),
-        keepPreviousData: true,
+        placeholderData: keepPreviousData,
     });
 
     const handleSort = (event, id) => {
@@ -95,6 +99,14 @@ export default function FilePage() {
     });
 
     const notFound = !dataFiltered.length && !!filterName;
+
+    const handleDeleteFile = (id) => {
+        deleteMutation.mutate(id, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
 
     return (
         <Container>
@@ -161,6 +173,7 @@ export default function FilePage() {
                                             handleClick={(event) =>
                                                 handleClick(event, row.Id)
                                             }
+                                            handleDeleteFile={handleDeleteFile}
                                         />
                                     ))}
 

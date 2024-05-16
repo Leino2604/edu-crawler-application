@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -10,33 +10,58 @@ import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+} from "@mui/material";
 
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
-import { getKeyword } from "../../../services/keyword.api";
+import { emptyRows, applyFilter, getComparator } from "../utils";
 
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
 import KeywordTableRow from "../keyword-table-row";
 import KeywordTableHead from "../keyword-table-head";
 import KeywordTableToolbar from "../keyword-table-toolbar";
-import { emptyRows, applyFilter, getComparator } from "../utils";
+
+import {
+    createKeyword,
+    deleteKeyword,
+    getKeyword,
+    updateKeyword,
+} from "../../../services/keyword.api";
 
 // ----------------------------------------------------------------------
 
 export default function KeywordPage() {
     const [page, setPage] = useState(0);
     const [order, setOrder] = useState("asc");
+    const [keywords, setKeywords] = useState("");
     const [selected, setSelected] = useState([]);
     const [orderBy, setOrderBy] = useState("Id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [createOpen, setCreateOpen] = useState(false);
 
-    const { data } = useQuery({
+    const createMutation = useMutation({
+        mutationFn: (body) => createKeyword(body),
+    });
+    const updateMutation = useMutation({
+        mutationFn: (body) => updateKeyword(body),
+    });
+    const deleteMutation = useMutation({
+        mutationFn: (body) => deleteKeyword(body),
+    });
+
+    const { data, refetch } = useQuery({
         queryKey: ["keyword", page, rowsPerPage],
         queryFn: () => getKeyword({ page: page, keywordPerPage: rowsPerPage }),
-        keepPreviousData: true,
+        placeholderData: keepPreviousData,
     });
 
     const handleSort = (event, id) => {
@@ -96,6 +121,37 @@ export default function KeywordPage() {
 
     const notFound = !dataFiltered.length && !!filterName;
 
+    const handleCreateKeyword = (keyword) => {
+        createMutation.mutate(keyword, {
+            onSuccess: () => {
+                refetch();
+            },
+            onError: (err) => {
+                console.log(err);
+            },
+        });
+    };
+    const handleUpdateKeyword = (id, keyword) => {
+        updateMutation.mutate(
+            { id, keyword },
+            {
+                onSuccess: () => {
+                    refetch();
+                },
+                onError: (err) => {
+                    console.log(err);
+                },
+            }
+        );
+    };
+    const handleDeleteKeyword = (id) => {
+        deleteMutation.mutate(id, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
+
     return (
         <Container>
             <Stack
@@ -110,6 +166,9 @@ export default function KeywordPage() {
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
+                    onClick={() => {
+                        setCreateOpen(true);
+                    }}
                 >
                     New Keyword
                 </Button>
@@ -159,6 +218,12 @@ export default function KeywordPage() {
                                             handleClick={(event) =>
                                                 handleClick(event, row.id)
                                             }
+                                            handleUpdateKeyword={
+                                                handleUpdateKeyword
+                                            }
+                                            handleDeleteKeyword={
+                                                handleDeleteKeyword
+                                            }
                                         />
                                     ))}
 
@@ -186,6 +251,51 @@ export default function KeywordPage() {
                     rowsPerPageOptions={[5, 10, 25]}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
+                <Dialog
+                    fullWidth
+                    open={createOpen}
+                    onClose={() => {
+                        setCreateOpen(false);
+                    }}
+                    PaperProps={{
+                        component: "form",
+                        onSubmit: (event) => {
+                            event.preventDefault();
+                            handleCreateKeyword(keywords);
+                            setCreateOpen(false);
+                            setKeywords("");
+                        },
+                    }}
+                >
+                    <DialogTitle>Create Keyword</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            autoFocus
+                            required
+                            defaultValue={keywords}
+                            margin="dense"
+                            id="keyword"
+                            name="keyword"
+                            label="Keyword"
+                            fullWidth
+                            variant="outlined"
+                            onChange={(e) => {
+                                setKeywords(e.target.value);
+                            }}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={() => {
+                                setCreateOpen(false);
+                                setKeywords("");
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit">Save</Button>
+                    </DialogActions>
+                </Dialog>
             </Card>
         </Container>
     );

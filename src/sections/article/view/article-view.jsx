@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -36,7 +36,7 @@ export default function ArticlePage() {
     const { data } = useQuery({
         queryKey: ["article", page, rowsPerPage],
         queryFn: () => getArticle({ page: page, articlePerPage: rowsPerPage }),
-        keepPreviousData: true,
+        placeholderData: keepPreviousData,
     });
 
     const handleSort = (event, id) => {
@@ -109,9 +109,9 @@ export default function ArticlePage() {
                 <Button
                     variant="contained"
                     color="inherit"
-                    startIcon={<Iconify icon="eva:plus-fill" />}
+                    startIcon={<Iconify icon="material-symbols:download" />}
                 >
-                    New Article
+                    Export All Article
                 </Button>
             </Stack>
 
