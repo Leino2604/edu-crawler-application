@@ -18,7 +18,7 @@ const style = {
 };
 
 export default function EditModal(prop) {
-    const { title, content, url, domain } = prop.article;
+    const { title, content, url, domain, keyword, lastUpdate } = prop.article;
 
     return (
         <Modal
@@ -42,18 +42,34 @@ export default function EditModal(prop) {
                         name="url"
                         margin="normal"
                         defaultValue={url}
-                        InputProps={{
-                            readOnly: true,
-                        }}
+
+                        disabled
+
                     />
                     <TextField
                         name="domain"
                         label="Domain"
                         margin="normal"
                         defaultValue={domain}
-                        InputProps={{
-                            readOnly: true,
-                        }}
+
+                        disabled
+                    />
+
+                    <TextField
+                        label="Keyword"
+                        name="keyword"
+                        margin="normal"
+                        defaultValue={keyword?.map(data => data.name)}
+                        disabled
+                    />
+
+                    <TextField
+                        label="Last Update"
+                        name="lastUpdate"
+                        margin="normal"
+                        defaultValue={lastUpdate}
+                        disabled
+
                     />
 
                     <TextField

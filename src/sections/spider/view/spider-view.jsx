@@ -22,6 +22,7 @@ import SpiderTableRow from "../spider-table-row";
 import SpiderTableHead from "../spider-table-head";
 import SpiderTableToolbar from "../spider-table-toolbar";
 import { emptyRows, applyFilter, getComparator } from "../utils";
+import SpiderCreateModal from "../spider-create-modal";
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ export default function SpiderPage() {
     const [orderBy, setOrderBy] = useState("Id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [showCreateSpiderModal, setShowCreateSpiderModal] = useState(false);
 
     const { data } = useQuery({
         queryKey: ["spider", page, rowsPerPage],
@@ -110,17 +112,18 @@ export default function SpiderPage() {
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
+                    onClick={() => setShowCreateSpiderModal(true)}
                 >
                     New Spider
                 </Button>
             </Stack>
 
             <Card>
-                <SpiderTableToolbar
+                {/*<SpiderTableToolbar
                     numSelected={selected.length}
                     filterName={filterName}
                     onFilterName={handleFilterByName}
-                />
+                />*/}
 
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
@@ -136,8 +139,16 @@ export default function SpiderPage() {
                                     { id: "Id", label: "Name" },
                                     { id: "Url", label: "Url" },
                                     {
-                                        id: "CrawlStatus",
-                                        label: "Crawl Status",
+                                        id: "Last Run Date",
+                                        label: "Last Run Date",
+                                    },
+                                    {
+                                      id: "Last Run New Article",
+                                      label: "Last Run New Article",
+                                    },
+                                    {
+                                      id: "Last Run Updated Article",
+                                      label: "Last Run Updated Article",
                                     },
                                     { id: "Status", label: "Status" },
                                     { id: "" },
@@ -153,6 +164,9 @@ export default function SpiderPage() {
                                             url={row.Url}
                                             status={row.Status}
                                             crawlStatus={row.CrawlStatus}
+                                            lastRunDate={row.LastRunDate}
+                                            lastRunNewArticle={row.LastRunNewArticle}
+                                            lastRunUpdateArticle={row.LastRunUpdateArticle}
                                             selected={
                                                 selected.indexOf(row.Id) !== -1
                                             }
@@ -187,6 +201,10 @@ export default function SpiderPage() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Card>
+            <SpiderCreateModal
+                open={showCreateSpiderModal}
+                onClose={() => setShowCreateSpiderModal(false)}
+            />
         </Container>
     );
 }

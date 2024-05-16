@@ -15,6 +15,7 @@ import IconButton from "@mui/material/IconButton";
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import EditModal from "./edit-modal";
+import DeleteModal from "./delete-modal";
 import { useQuery } from "@tanstack/react-query";
 import { exportXls, getArticleById } from "../../services/article.api";
 
@@ -30,6 +31,7 @@ export default function ArticleTableRow({
     const [data, setData] = useState(null);
     const [open, setOpen] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+
     const { data: articleInfo } = useQuery({
         queryKey: ["articleinfo", id],
         queryFn: () => getArticleById(id),
@@ -47,6 +49,8 @@ export default function ArticleTableRow({
     const handleCloseMenu = () => {
         setOpen(null);
     };
+
+    //Local storage. getByProfile
 
     return (
         <>
@@ -92,12 +96,15 @@ export default function ArticleTableRow({
                         handleCloseMenu();
                     }}
                 >
+
                     <Iconify icon="lets-icons:view-alt-fill" sx={{ mr: 2 }} />
+
                     View
                 </MenuItem>
 
                 <MenuItem
                     onClick={() => {
+
                         console.log(Object.keys(articleXls?.data));
                         console.log(Object.keys(articleXls?.data).splice(7, 8));
                         const workbook = XLSX.utils.book_new();
@@ -161,6 +168,7 @@ export default function ArticleTableRow({
                         // Save the blob as a file
                         saveAs(blob, "exportedData.xlsx");
                     }}
+
                 >
                     <Iconify icon="material-symbols:download" sx={{ mr: 2 }} />
                     Export
@@ -170,6 +178,11 @@ export default function ArticleTableRow({
                 open={showEditModal}
                 article={articleInfo?.data || {}}
                 onClose={() => setShowEditModal(false)}
+            />
+            <DeleteModal
+                open={showDeleteModal}
+                article={data?.data || {}}
+                onClose={() => setShowDeleteModal(false)}            
             />
         </>
     );

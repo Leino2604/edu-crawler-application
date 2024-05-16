@@ -161,19 +161,9 @@ export default function AppView() {
                                         0,
                                 },
                                 {
-                                    label: "Closing",
-                                    value:
-                                        totalStatus?.data?.detail?.Closing || 0,
-                                },
-                                {
                                     label: "Running",
                                     value:
                                         totalStatus?.data?.detail?.Running || 0,
-                                },
-                                {
-                                    label: "Suspend",
-                                    value:
-                                        totalStatus?.data?.detail?.Suspend || 0,
                                 },
                             ],
                         }}
@@ -182,8 +172,7 @@ export default function AppView() {
 
                 <Grid xs={12} md={12} lg={12}>
                     <AppConversionRates
-                        title="Conversion Rates"
-                        subheader="(+43%) than last year"
+                        title="Top 10 Spiders with most Articles"
                         chart={{
                             series: [
                                 {
