@@ -100,7 +100,7 @@ function WebsiteSpiderSubfolderModal({ spiderId }) {
 }
 
 export default function SpiderDetailModal(prop) {
-    const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread, Keyword, FileType, LastRunDate, LastEndDate, RunTime, TotalPage, LastRunNewArticle, LastRunUpdateArticle, LastRunUnchangeArticle} = prop.article;
+    const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread, Keyword, FileType, LastRunDate, LastEndDate, RunTime, TotalPage, LastRunNewArticle, LastRunUpdateArticle, LastRunUnchangeArticle, IsSchedule, ScheduleTime} = prop.article;
     const KeywordList = Keyword ? Keyword.map((data) => data.Value) : []
     const FileTypeList = FileType ? FileType.map((data) => data.Value) : []
 
@@ -148,6 +148,22 @@ export default function SpiderDetailModal(prop) {
                         <Grid xs={8}>
                             {Status}
                         </Grid>  
+                        <Grid xs={4}>
+                            Is Scheduled:
+                        </Grid>
+                        <Grid xs={8}>
+                            {IsSchedule == true ? "Yes" : "No"}
+                        </Grid>  
+                        {IsSchedule == true && (
+                          <>
+                              <Grid xs={4}>
+                                  Scheduled Time:
+                              </Grid>
+                              <Grid xs={8}>
+                                  {ScheduleTime}
+                              </Grid> 
+                          </>
+                        )}                      
                         {Type == "WebsiteSpider" && (
                           <>
                             <Grid xs={4}>

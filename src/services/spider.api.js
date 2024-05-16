@@ -97,3 +97,8 @@ export const getWebpageSpiderCrawlRulesById = (id) => http.get(`webpageSpider/${
 export const getWebsiteSpiderCrawlRulesById = (id) => http.get(`websiteSpider/${id}/crawlRules`);
 
 export const getWebsiteSpiderSearchRulesById = (id) => http.get(`websiteSpider/${id}/searchRules`);
+
+export const scheduleSpiderByID = (id, params) => http.post(`/spiders/${id}/schedule`, {
+  "scheduled_time": params.ScheduleTime,
+  "is_scheduled": params.IsSchedule
+});
