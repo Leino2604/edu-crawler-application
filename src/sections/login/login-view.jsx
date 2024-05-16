@@ -41,7 +41,6 @@ export default function LoginView() {
     });
 
     const handleClick = (e) => {
-        // router.replace("/");
         e.preventDefault();
         loginMutation.mutate(
             { Username: username, Password: password },

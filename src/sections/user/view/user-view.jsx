@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
+import Swal from "sweetalert2";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
@@ -12,6 +13,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
 import {
     Dialog,
+    DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
@@ -28,7 +30,8 @@ import UserTableRow from "../user-table-row";
 import UserTableHead from "../user-table-head";
 import TableEmptyRows from "../table-empty-rows";
 import UserTableToolbar from "../user-table-toolbar";
-import { getUser } from "../../../services/user.api";
+
+import { deleteUser, getUser } from "../../../services/user.api";
 
 // ----------------------------------------------------------------------
 
@@ -41,15 +44,18 @@ export default function UserPage() {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [open, setOpen] = useState(false);
 
-    const { data } = useQuery({
-        queryKey: ["user"],
-        queryFn: () => getUser(),
+    const deleteMutation = useMutation({
+        mutationFn: (body) => deleteUser(body),
+    });
+
+    const { data, refetch } = useQuery({
+        queryKey: ["user", page, rowsPerPage],
+        queryFn: () => getUser({ page: page, userPerPage: rowsPerPage }),
     });
 
     const handleClickOpen = () => {
         setOpen(true);
     };
-
     const handleClose = () => {
         setOpen(false);
     };
@@ -113,6 +119,14 @@ export default function UserPage() {
 
     const notFound = !dataFiltered.length && !!filterName;
 
+    const handleDeleteUser = (id) => {
+        deleteMutation.mutate(id, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
+
     return (
         <Container>
             <Stack
@@ -167,6 +181,7 @@ export default function UserPage() {
                                     .map((row) => (
                                         <UserTableRow
                                             key={row.id}
+                                            id={row.id}
                                             username={row.username}
                                             role={row.role}
                                             accountStatus={row.accountStatus}
@@ -179,6 +194,7 @@ export default function UserPage() {
                                             handleClick={(event) =>
                                                 handleClick(event, row.username)
                                             }
+                                            handleDeleteUser={handleDeleteUser}
                                         />
                                     ))}
 
@@ -207,38 +223,43 @@ export default function UserPage() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Card>
-            <>
-                <Dialog
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="form-dialog-title"
-                >
-                    <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            To subscribe to this website, please enter your
-                            email address here. We will send updates
-                            occasionally.
-                        </DialogContentText>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Email Address"
-                            type="email"
-                            fullWidth
-                        />
-                    </DialogContent>
-                    {/* <DialogActions>
-            <Button onClick={handleClose} color="default">
-              Add
-            </Button>
-            <Button onClick={handleClose} color="default">
-              Cancel
-            </Button>
-          </DialogActions> */}
-                </Dialog>
-            </>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="form-dialog-title"
+            >
+                <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        To subscribe to this website, please enter your email
+                        address here. We will send updates occasionally.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Email Address"
+                        type="email"
+                        fullWidth
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => {
+                            handleClose();
+                        }}
+                    >
+                        Add
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleClose();
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 }

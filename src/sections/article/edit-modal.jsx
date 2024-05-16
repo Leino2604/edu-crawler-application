@@ -42,13 +42,16 @@ export default function EditModal(prop) {
                         name="url"
                         margin="normal"
                         defaultValue={url}
+
                         disabled
+
                     />
                     <TextField
-                        label="Domain"
                         name="domain"
+                        label="Domain"
                         margin="normal"
                         defaultValue={domain}
+
                         disabled
                     />
 
@@ -66,14 +69,19 @@ export default function EditModal(prop) {
                         margin="normal"
                         defaultValue={lastUpdate}
                         disabled
+
                     />
 
-                    <textarea
-                        style={{ flexGrow: 1, width: "100%" }}
+                    <TextField
+                        rows={15}
+                        multiline
                         name="content"
-                        value={content}
-                        type="password"
+                        label="Content"
                         margin="normal"
+                        value={content}
+                        InputProps={{
+                            readOnly: true,
+                        }}
                     />
                 </form>
             </Box>

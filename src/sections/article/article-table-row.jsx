@@ -1,5 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 import Stack from "@mui/material/Stack";
 import Popover from "@mui/material/Popover";
@@ -15,7 +17,7 @@ import Iconify from "../../components/iconify";
 import EditModal from "./edit-modal";
 import DeleteModal from "./delete-modal";
 import { useQuery } from "@tanstack/react-query";
-import { getArticleById } from "../../services/article.api";
+import { exportXls, getArticleById } from "../../services/article.api";
 
 // ----------------------------------------------------------------------
 
@@ -26,12 +28,18 @@ export default function ArticleTableRow({
     url,
     handleClick,
 }) {
+    const [data, setData] = useState(null);
     const [open, setOpen] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const { data } = useQuery({
-        queryKey: ["articleid", id],
+
+    const { data: articleInfo } = useQuery({
+        queryKey: ["articleinfo", id],
         queryFn: () => getArticleById(id),
+    });
+
+    const { data: articleXls } = useQuery({
+        queryKey: ["articlexls", id],
+        queryFn: () => exportXls(id),
     });
 
     const handleOpenMenu = (event) => {
@@ -88,24 +96,87 @@ export default function ArticleTableRow({
                         handleCloseMenu();
                     }}
                 >
-                    <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+
+                    <Iconify icon="lets-icons:view-alt-fill" sx={{ mr: 2 }} />
+
                     View
                 </MenuItem>
 
                 <MenuItem
                     onClick={() => {
-                        setShowDeleteModal(true);
-                        handleCloseMenu();
+
+                        console.log(Object.keys(articleXls?.data));
+                        console.log(Object.keys(articleXls?.data).splice(7, 8));
+                        const workbook = XLSX.utils.book_new();
+
+                        function processKeywords(keywords) {
+                            let result = [];
+                            keywords.forEach((keyword) => {
+                                let keywordData = {
+                                    id: keyword.id,
+                                    name: keyword.name,
+                                    articleAppearance:
+                                        keyword.articleAppearance,
+                                };
+                                result.push(keywordData);
+                                if (
+                                    keyword.children &&
+                                    keyword.children.length > 0
+                                ) {
+                                    keywordData.children = processKeywords(
+                                        keyword.children
+                                    );
+                                }
+                            });
+                            return result;
+                        }
+
+                        const processedKeywords = processKeywords(
+                            articleXls?.data.keyword
+                        );
+
+                        const exportData = [
+                            ["Key", "Value"], // Headers
+                            ["Title", articleXls?.data.title],
+                            ["Domain", articleXls?.data.domain],
+                            ["URL", articleXls?.data.url],
+                            [
+                                "First Crawl Date",
+                                articleXls?.data.firstCrawlDate,
+                            ],
+                            ["Last Update", articleXls?.data.lastUpdate],
+                            ["Content", articleXls?.data.content],
+                            ["Keywords", JSON.stringify(processedKeywords)], // Convert keywords to string
+                        ];
+
+                        const sheet = XLSX.utils.aoa_to_sheet(exportData);
+
+                        // Append the worksheet to the workbook
+                        XLSX.utils.book_append_sheet(workbook, sheet, "Data");
+
+                        // Generate Excel buffer
+                        const excelBuffer = XLSX.write(workbook, {
+                            bookType: "xlsx",
+                            type: "buffer",
+                        });
+
+                        // Create a blob
+                        const blob = new Blob([excelBuffer], {
+                            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+                        });
+
+                        // Save the blob as a file
+                        saveAs(blob, "exportedData.xlsx");
                     }}
-                    sx={{ color: "error.main" }}
+
                 >
-                    <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-                    Delete
+                    <Iconify icon="material-symbols:download" sx={{ mr: 2 }} />
+                    Export
                 </MenuItem>
             </Popover>
             <EditModal
                 open={showEditModal}
-                article={data?.data || {}}
+                article={articleInfo?.data || {}}
                 onClose={() => setShowEditModal(false)}
             />
             <DeleteModal

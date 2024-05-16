@@ -11,7 +11,7 @@ import { visuallyHidden } from "./utils";
 
 // ----------------------------------------------------------------------
 
-export default function SpiderTableHead({
+export default function FileTypeTableHead({
     order,
     orderBy,
     rowCount,
@@ -69,7 +69,7 @@ export default function SpiderTableHead({
     );
 }
 
-SpiderTableHead.propTypes = {
+FileTypeTableHead.propTypes = {
     order: PropTypes.oneOf(["asc", "desc"]),
     orderBy: PropTypes.string,
     rowCount: PropTypes.number,

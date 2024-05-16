@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -10,11 +10,23 @@ import TableBody from "@mui/material/TableBody";
 import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+} from "@mui/material";
 
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
-import { getFileType } from "../../../services/filetype.api";
+import {
+    createFileType,
+    deleteFileType,
+    getFileType,
+    updateFileType,
+} from "../../../services/filetype.api";
 
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
@@ -27,19 +39,30 @@ import { emptyRows, applyFilter, getComparator } from "../utils";
 
 export default function FileTypePage() {
     const [page, setPage] = useState(0);
+    const [types, setTypes] = useState("");
     const [order, setOrder] = useState("asc");
     const [selected, setSelected] = useState([]);
     const [orderBy, setOrderBy] = useState("Id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [createOpen, setCreateOpen] = useState(false);
 
-    const { data } = useQuery({
+    const createMutation = useMutation({
+        mutationFn: (body) => createFileType(body),
+    });
+    const updateMutation = useMutation({
+        mutationFn: (body) => updateFileType(body),
+    });
+    const deleteMutation = useMutation({
+        mutationFn: (body) => deleteFileType(body),
+    });
+
+    const { data, refetch } = useQuery({
         queryKey: ["type", page, rowsPerPage],
         queryFn: () =>
             getFileType({ page: page, filetypePerPage: rowsPerPage }),
-        keepPreviousData: true,
+        placeholderData: keepPreviousData,
     });
-    console.log(data);
 
     const handleSort = (event, id) => {
         const isAsc = orderBy === id && order === "asc";
@@ -98,6 +121,37 @@ export default function FileTypePage() {
 
     const notFound = !dataFiltered.length && !!filterName;
 
+    const handleCreateFileType = (type) => {
+        createMutation.mutate(type, {
+            onSuccess: () => {
+                refetch();
+            },
+            onError: (err) => {
+                console.log(err);
+            },
+        });
+    };
+    const handleUpdateFileType = (id, type) => {
+        updateMutation.mutate(
+            { id, type },
+            {
+                onSuccess: () => {
+                    refetch();
+                },
+                onError: (err) => {
+                    console.log(err);
+                },
+            }
+        );
+    };
+    const handleDeleteFileType = (id) => {
+        deleteMutation.mutate(id, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
+
     return (
         <Container>
             <Stack
@@ -112,6 +166,9 @@ export default function FileTypePage() {
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
+                    onClick={() => {
+                        setCreateOpen(true);
+                    }}
                 >
                     New File Type
                 </Button>
@@ -154,6 +211,12 @@ export default function FileTypePage() {
                                             handleClick={(event) =>
                                                 handleClick(event, row.id)
                                             }
+                                            handleUpdateFileType={
+                                                handleUpdateFileType
+                                            }
+                                            handleDeleteFileType={
+                                                handleDeleteFileType
+                                            }
                                         />
                                     ))}
 
@@ -181,6 +244,51 @@ export default function FileTypePage() {
                     rowsPerPageOptions={[5, 10, 25]}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
+                <Dialog
+                    fullWidth
+                    open={createOpen}
+                    onClose={() => {
+                        setCreateOpen(false);
+                    }}
+                    PaperProps={{
+                        component: "form",
+                        onSubmit: (event) => {
+                            event.preventDefault();
+                            handleCreateFileType(types);
+                            setCreateOpen(false);
+                            setTypes("");
+                        },
+                    }}
+                >
+                    <DialogTitle>Create Type</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            autoFocus
+                            required
+                            defaultValue={types}
+                            margin="dense"
+                            id="type"
+                            name="type"
+                            label="Type"
+                            fullWidth
+                            variant="outlined"
+                            onChange={(e) => {
+                                setTypes(e.target.value);
+                            }}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={() => {
+                                setCreateOpen(false);
+                                setTypes("");
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit">Save</Button>
+                    </DialogActions>
+                </Dialog>
             </Card>
         </Container>
     );
