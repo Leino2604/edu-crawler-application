@@ -244,8 +244,6 @@ export default function SpiderTableRow({
                   )
                 }
 
-
-
                 <MenuItem
                     onClick={() => {
                       deleteSpider()

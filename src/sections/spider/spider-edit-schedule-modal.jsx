@@ -128,7 +128,7 @@ export default function SpiderEditScheduleModal(prop) {
                                     label="Schedule Time (24 Hours)"
                                     name="scheduleTime"
                                     margin="normal"
-                                    defaultValue={ScheduleTime ? ScheduleTime.split(":")[0] : "00"}
+                                    defaultValue={ScheduleTime ? parseInt(ScheduleTime.split(":")[0]) : 0}
                                     value={data.ScheduleTime}
                                     onChange={(e) => setData({...data, ScheduleTime: e.target.value})}
                                     type="Number"
