@@ -17,6 +17,7 @@ import Iconify from "../../components/iconify";
 import SpiderDetailModal from "./spider-detail-modal";
 import SpiderEditBasicModal from "./spider-edit-basic-modal";
 import SpiderEditAdvanceModal from "./spider-edit-advance-modal";
+import SpiderEditScheduleModal from "./spider-edit-schedule-modal";
 import { useQuery } from "@tanstack/react-query";
 import { getSpiderById } from "../../services/spider.api";
 import { runSpiderById, stopSpiderById, deleteSpiderById } from "../../services/spider.api";
@@ -38,6 +39,7 @@ export default function SpiderTableRow({
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
     const { data } = useQuery({
         queryKey: ["spider", id],
         queryFn: () => getSpiderById(id),
@@ -228,6 +230,22 @@ export default function SpiderTableRow({
                     Edit
                 </MenuItem>
 
+                {
+                  (profile.Role == "Admin" || profile.Role == "Pro" || profile.Role == "Standard") && (
+                      <MenuItem 
+                          onClick={() => {
+                            setShowScheduleModal(true);
+                            handleCloseMenu();
+                          }}
+                      >
+                          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+                          Schedule
+                      </MenuItem>
+                  )
+                }
+
+
+
                 <MenuItem
                     onClick={() => {
                       deleteSpider()
@@ -252,6 +270,11 @@ export default function SpiderTableRow({
                 open={showEditModal}
                 article={data?.data || {}}
                 onClose={() => setShowEditModal(false)}
+            />
+            <SpiderEditScheduleModal
+                open={showScheduleModal}
+                article={data?.data || {}}
+                onClose={() => setShowScheduleModal(false)}
             />
         </>
     );
