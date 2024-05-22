@@ -14,11 +14,8 @@ import { visuallyHidden } from "./utils";
 export default function FileTypeTableHead({
     order,
     orderBy,
-    rowCount,
     headLabel,
-    numSelected,
     onRequestSort,
-    onSelectAllClick,
 }) {
     const onSort = (property) => (event) => {
         onRequestSort(event, property);
@@ -27,16 +24,6 @@ export default function FileTypeTableHead({
     return (
         <TableHead>
             <TableRow>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        indeterminate={
-                            numSelected > 0 && numSelected < rowCount
-                        }
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                    />
-                </TableCell>
-
                 {headLabel.map((headCell) => (
                     <TableCell
                         key={headCell.id}

@@ -105,8 +105,8 @@ export default function RegisterView() {
                                     Username: username,
                                     Password: password,
                                     Phone: phone,
-                                    RoleID: 3,
-                                    Role: "Basic",
+                                    RoleID: 2,
+                                    Role: "Free",
                                 });
                             }}
                         >
@@ -117,6 +117,15 @@ export default function RegisterView() {
                                 value={fullname}
                                 onChange={(e) => {
                                     setFullname(e.target.value);
+                                }}
+                            />
+                            <TextField
+                                required
+                                name="phone"
+                                label="Phone"
+                                value={phone}
+                                onChange={(e) => {
+                                    setPhone(e.target.value);
                                 }}
                             />
                             <TextField
@@ -135,15 +144,6 @@ export default function RegisterView() {
                                 value={username}
                                 onChange={(e) => {
                                     setUsername(e.target.value);
-                                }}
-                            />
-                            <TextField
-                                required
-                                name="phone"
-                                label="Phone"
-                                value={phone}
-                                onChange={(e) => {
-                                    setPhone(e.target.value);
                                 }}
                             />
                             <TextField

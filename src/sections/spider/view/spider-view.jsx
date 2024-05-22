@@ -119,12 +119,6 @@ export default function SpiderPage() {
             </Stack>
 
             <Card>
-                {/*<SpiderTableToolbar
-                    numSelected={selected.length}
-                    filterName={filterName}
-                    onFilterName={handleFilterByName}
-                />*/}
-
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
                         <Table sx={{ minWidth: 800 }}>
@@ -143,38 +137,40 @@ export default function SpiderPage() {
                                         label: "Last Run Date",
                                     },
                                     {
-                                      id: "Last Run New Article",
-                                      label: "Last Run New Article",
+                                        id: "Last Run New Article",
+                                        label: "Last Run New Article",
                                     },
                                     {
-                                      id: "Last Run Updated Article",
-                                      label: "Last Run Updated Article",
+                                        id: "Last Run Updated Article",
+                                        label: "Last Run Updated Article",
                                     },
                                     { id: "Status", label: "Status" },
                                     { id: "" },
                                 ]}
                             />
                             <TableBody>
-                                {dataFiltered
-                                    // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((row) => (
-                                        <SpiderTableRow
-                                            key={row.Id}
-                                            id={row.Id}
-                                            url={row.Url}
-                                            status={row.Status}
-                                            crawlStatus={row.CrawlStatus}
-                                            lastRunDate={row.LastRunDate}
-                                            lastRunNewArticle={row.LastRunNewArticle}
-                                            lastRunUpdateArticle={row.LastRunUpdateArticle}
-                                            selected={
-                                                selected.indexOf(row.Id) !== -1
-                                            }
-                                            handleClick={(event) =>
-                                                handleClick(event, row.Id)
-                                            }
-                                        />
-                                    ))}
+                                {dataFiltered.map((row) => (
+                                    <SpiderTableRow
+                                        key={row.Id}
+                                        id={row.Id}
+                                        url={row.Url}
+                                        status={row.Status}
+                                        crawlStatus={row.CrawlStatus}
+                                        lastRunDate={row.LastRunDate}
+                                        lastRunNewArticle={
+                                            row.LastRunNewArticle
+                                        }
+                                        lastRunUpdateArticle={
+                                            row.LastRunUpdateArticle
+                                        }
+                                        selected={
+                                            selected.indexOf(row.Id) !== -1
+                                        }
+                                        handleClick={(event) =>
+                                            handleClick(event, row.Id)
+                                        }
+                                    />
+                                ))}
 
                                 <TableEmptyRows
                                     height={77}

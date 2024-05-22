@@ -18,22 +18,19 @@ import {
     TextField,
 } from "@mui/material";
 
-import Iconify from "../../../components/iconify";
-import Scrollbar from "../../../components/scrollbar";
-
-import { emptyRows, applyFilter, getComparator } from "../utils";
-
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
 import KeywordTableRow from "../keyword-table-row";
 import KeywordTableHead from "../keyword-table-head";
-import KeywordTableToolbar from "../keyword-table-toolbar";
+import { emptyRows, applyFilter, getComparator } from "../utils";
 
+import Iconify from "../../../components/iconify";
+import Scrollbar from "../../../components/scrollbar";
 import {
-    createKeyword,
-    deleteKeyword,
     getKeyword,
-    updateKeyword,
+    addKeyword,
+    editKeyword,
+    deleteKeyword,
 } from "../../../services/keyword.api";
 
 // ----------------------------------------------------------------------
@@ -43,16 +40,16 @@ export default function KeywordPage() {
     const [order, setOrder] = useState("asc");
     const [keywords, setKeywords] = useState("");
     const [selected, setSelected] = useState([]);
-    const [orderBy, setOrderBy] = useState("Id");
+    const [orderBy, setOrderBy] = useState("id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [createOpen, setCreateOpen] = useState(false);
+    const [addOpen, setAddOpen] = useState(false);
 
-    const createMutation = useMutation({
-        mutationFn: (body) => createKeyword(body),
+    const addMutation = useMutation({
+        mutationFn: (body) => addKeyword(body),
     });
-    const updateMutation = useMutation({
-        mutationFn: (body) => updateKeyword(body),
+    const editMutation = useMutation({
+        mutationFn: (body) => editKeyword(body),
     });
     const deleteMutation = useMutation({
         mutationFn: (body) => deleteKeyword(body),
@@ -121,8 +118,8 @@ export default function KeywordPage() {
 
     const notFound = !dataFiltered.length && !!filterName;
 
-    const handleCreateKeyword = (keyword) => {
-        createMutation.mutate(keyword, {
+    const handleAddKeyword = (keyword) => {
+        addMutation.mutate(keyword, {
             onSuccess: () => {
                 refetch();
             },
@@ -131,8 +128,8 @@ export default function KeywordPage() {
             },
         });
     };
-    const handleUpdateKeyword = (id, keyword) => {
-        updateMutation.mutate(
+    const handleEditKeyword = (id, keyword) => {
+        editMutation.mutate(
             { id, keyword },
             {
                 onSuccess: () => {
@@ -167,7 +164,7 @@ export default function KeywordPage() {
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
                     onClick={() => {
-                        setCreateOpen(true);
+                        setAddOpen(true);
                     }}
                 >
                     New Keyword
@@ -175,22 +172,13 @@ export default function KeywordPage() {
             </Stack>
 
             <Card>
-                {/* <KeywordTableToolbar
-                    numSelected={selected.length}
-                    filterName={filterName}
-                    onFilterName={handleFilterByName}
-                /> */}
-
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
                         <Table sx={{ minWidth: 800 }}>
                             <KeywordTableHead
                                 order={order}
                                 orderBy={orderBy}
-                                rowCount={data?.data?.totalKeyword || 0}
-                                numSelected={selected.length}
                                 onRequestSort={handleSort}
-                                onSelectAllClick={handleSelectAllClick}
                                 headLabel={[
                                     { id: "id", label: "Id" },
                                     { id: "name", label: "Name" },
@@ -202,30 +190,23 @@ export default function KeywordPage() {
                                 ]}
                             />
                             <TableBody>
-                                {dataFiltered
-                                    // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((row) => (
-                                        <KeywordTableRow
-                                            key={row.id}
-                                            id={row.id}
-                                            name={row.name}
-                                            articleAppearance={
-                                                row.articleAppearance
-                                            }
-                                            selected={
-                                                selected.indexOf(row.id) !== -1
-                                            }
-                                            handleClick={(event) =>
-                                                handleClick(event, row.id)
-                                            }
-                                            handleUpdateKeyword={
-                                                handleUpdateKeyword
-                                            }
-                                            handleDeleteKeyword={
-                                                handleDeleteKeyword
-                                            }
-                                        />
-                                    ))}
+                                {dataFiltered.map((row) => (
+                                    <KeywordTableRow
+                                        key={row.id}
+                                        id={row.id}
+                                        name={row.name}
+                                        articleAppearance={
+                                            row.articleAppearance
+                                        }
+                                        handleClick={(event) =>
+                                            handleClick(event, row.id)
+                                        }
+                                        handleEditKeyword={handleEditKeyword}
+                                        handleDeleteKeyword={
+                                            handleDeleteKeyword
+                                        }
+                                    />
+                                ))}
 
                                 <TableEmptyRows
                                     height={77}
@@ -253,47 +234,49 @@ export default function KeywordPage() {
                 />
                 <Dialog
                     fullWidth
-                    open={createOpen}
+                    open={addOpen}
                     onClose={() => {
-                        setCreateOpen(false);
+                        setAddOpen(false);
                     }}
                     PaperProps={{
                         component: "form",
                         onSubmit: (event) => {
                             event.preventDefault();
-                            handleCreateKeyword(keywords);
-                            setCreateOpen(false);
+                            handleAddKeyword(keywords);
+                            setAddOpen(false);
                             setKeywords("");
                         },
                     }}
                 >
-                    <DialogTitle>Create Keyword</DialogTitle>
+                    <DialogTitle>Add Keyword</DialogTitle>
                     <DialogContent>
                         <TextField
                             autoFocus
                             required
                             defaultValue={keywords}
-                            margin="dense"
                             id="keyword"
                             name="keyword"
                             label="Keyword"
                             fullWidth
-                            variant="outlined"
                             onChange={(e) => {
                                 setKeywords(e.target.value);
                             }}
+                            sx={{ margin: "8px 0px" }}
                         />
                     </DialogContent>
                     <DialogActions>
                         <Button
                             onClick={() => {
-                                setCreateOpen(false);
+                                setAddOpen(false);
                                 setKeywords("");
                             }}
+                            variant="outlined"
                         >
                             Cancel
                         </Button>
-                        <Button type="submit">Save</Button>
+                        <Button type="submit" variant="contained">
+                            Save
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </Card>

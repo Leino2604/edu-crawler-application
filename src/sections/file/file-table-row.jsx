@@ -38,14 +38,6 @@ export default function FileTableRow({
     return (
         <>
             <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        disableRipple
-                        checked={selected}
-                        onChange={handleClick}
-                    />
-                </TableCell>
-
                 <TableCell component="th" scope="row">
                     <Typography variant="subtitle2" noWrap>
                         {id}
@@ -73,7 +65,7 @@ export default function FileTableRow({
                 open={!!open}
                 anchorEl={open}
                 onClose={() => {
-                    setOpen(false);
+                    setOpen(null);
                 }}
                 anchorOrigin={{ vertical: "top", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
@@ -81,15 +73,6 @@ export default function FileTableRow({
                     sx: { width: 140 },
                 }}
             >
-                <MenuItem
-                    onClick={() => {
-                        setOpen(null);
-                    }}
-                >
-                    <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-                    Edit
-                </MenuItem>
-
                 <MenuItem
                     onClick={() => {
                         setOpen(null);
@@ -102,6 +85,7 @@ export default function FileTableRow({
                 </MenuItem>
             </Popover>
             <Dialog
+                fullWidth
                 open={deleteOpen}
                 onClose={() => {
                     setDeleteOpen(false);
@@ -109,14 +93,10 @@ export default function FileTableRow({
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">
-                    {"Use Google's location service?"}
-                </DialogTitle>
+                <DialogTitle id="alert-dialog-title">Delete File</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Let Google help apps determine location. This means
-                        sending anonymous location data to Google, even when no
-                        apps are running.
+                        Are you sure you want to delete this file?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

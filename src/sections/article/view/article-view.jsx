@@ -128,12 +128,6 @@ export default function ArticlePage() {
             </Stack>
 
             <Card>
-                {/*<ArticleTableToolbar
-                    numSelected={selected.length}
-                    filterName={filterName}
-                    onFilterName={handleFilterByName}
-                />*/}
-
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
                         <Table sx={{ minWidth: 800 }}>
@@ -152,25 +146,23 @@ export default function ArticlePage() {
                                 ]}
                             />
                             <TableBody>
-                                {dataFiltered
-                                    // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((row) => (
-                                        <ArticleTableRow
-                                            key={row.id}
-                                            id={row.id}
-                                            title={row.title}
-                                            url={row.url}
-                                            selected={
-                                                selected.indexOf(row.id) !== -1
-                                            }
-                                            handleClick={(event) =>
-                                                handleClick(event, row.id)
-                                            }
-                                            handleDeleteArticle={
-                                                handleDeleteArticle
-                                            }
-                                        />
-                                    ))}
+                                {dataFiltered.map((row) => (
+                                    <ArticleTableRow
+                                        key={row.id}
+                                        id={row.id}
+                                        title={row.title}
+                                        url={row.url}
+                                        selected={
+                                            selected.indexOf(row.id) !== -1
+                                        }
+                                        handleClick={(event) =>
+                                            handleClick(event, row.id)
+                                        }
+                                        handleDeleteArticle={
+                                            handleDeleteArticle
+                                        }
+                                    />
+                                ))}
 
                                 <TableEmptyRows
                                     height={77}

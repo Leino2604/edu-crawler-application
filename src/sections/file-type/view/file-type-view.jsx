@@ -18,22 +18,20 @@ import {
     TextField,
 } from "@mui/material";
 
-import Iconify from "../../../components/iconify";
-import Scrollbar from "../../../components/scrollbar";
-
-import {
-    createFileType,
-    deleteFileType,
-    getFileType,
-    updateFileType,
-} from "../../../services/filetype.api";
-
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
 import FileTypeTableRow from "../file-type-table-row";
 import FileTypeTableHead from "../file-type-table-head";
-import FileTypeTableToolbar from "../file-type-table-toolbar";
 import { emptyRows, applyFilter, getComparator } from "../utils";
+
+import Iconify from "../../../components/iconify";
+import Scrollbar from "../../../components/scrollbar";
+import {
+    addFileType,
+    deleteFileType,
+    getFileType,
+    editFileType,
+} from "../../../services/filetype.api";
 
 // ----------------------------------------------------------------------
 
@@ -41,17 +39,16 @@ export default function FileTypePage() {
     const [page, setPage] = useState(0);
     const [types, setTypes] = useState("");
     const [order, setOrder] = useState("asc");
-    const [selected, setSelected] = useState([]);
-    const [orderBy, setOrderBy] = useState("Id");
+    const [orderBy, setOrderBy] = useState("id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [createOpen, setCreateOpen] = useState(false);
+    const [addOpen, setAddOpen] = useState(false);
 
-    const createMutation = useMutation({
-        mutationFn: (body) => createFileType(body),
+    const addMutation = useMutation({
+        mutationFn: (body) => addFileType(body),
     });
-    const updateMutation = useMutation({
-        mutationFn: (body) => updateFileType(body),
+    const editMutation = useMutation({
+        mutationFn: (body) => editFileType(body),
     });
     const deleteMutation = useMutation({
         mutationFn: (body) => deleteFileType(body),
@@ -70,33 +67,6 @@ export default function FileTypePage() {
             setOrder(isAsc ? "desc" : "asc");
             setOrderBy(id);
         }
-    };
-
-    const handleSelectAllClick = (event) => {
-        if (event.target.checked) {
-            const newSelecteds = data?.data?.detail?.map((n) => n.Id);
-            setSelected(newSelecteds);
-            return;
-        }
-        setSelected([]);
-    };
-
-    const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
-        let newSelected = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-        setSelected(newSelected);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -121,8 +91,8 @@ export default function FileTypePage() {
 
     const notFound = !dataFiltered.length && !!filterName;
 
-    const handleCreateFileType = (type) => {
-        createMutation.mutate(type, {
+    const handleAddFileType = (type) => {
+        addMutation.mutate(type, {
             onSuccess: () => {
                 refetch();
             },
@@ -131,8 +101,8 @@ export default function FileTypePage() {
             },
         });
     };
-    const handleUpdateFileType = (id, type) => {
-        updateMutation.mutate(
+    const handleEditFileType = (id, type) => {
+        editMutation.mutate(
             { id, type },
             {
                 onSuccess: () => {
@@ -167,7 +137,7 @@ export default function FileTypePage() {
                     color="inherit"
                     startIcon={<Iconify icon="eva:plus-fill" />}
                     onClick={() => {
-                        setCreateOpen(true);
+                        setAddOpen(true);
                     }}
                 >
                     New File Type
@@ -175,22 +145,13 @@ export default function FileTypePage() {
             </Stack>
 
             <Card>
-                {/* <FileTypeTableToolbar
-                    numSelected={selected.length}
-                    filterName={filterName}
-                    onFilterName={handleFilterByName}
-                /> */}
-
                 <Scrollbar>
                     <TableContainer sx={{ overflow: "unset" }}>
                         <Table sx={{ minWidth: 800 }}>
                             <FileTypeTableHead
                                 order={order}
                                 orderBy={orderBy}
-                                rowCount={data?.data?.totalFileType || 0}
-                                numSelected={selected.length}
                                 onRequestSort={handleSort}
-                                onSelectAllClick={handleSelectAllClick}
                                 headLabel={[
                                     { id: "id", label: "Id" },
                                     { id: "type", label: "Type" },
@@ -198,27 +159,17 @@ export default function FileTypePage() {
                                 ]}
                             />
                             <TableBody>
-                                {dataFiltered
-                                    // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((row) => (
-                                        <FileTypeTableRow
-                                            key={row.id}
-                                            id={row.id}
-                                            type={row.type}
-                                            selected={
-                                                selected.indexOf(row.id) !== -1
-                                            }
-                                            handleClick={(event) =>
-                                                handleClick(event, row.id)
-                                            }
-                                            handleUpdateFileType={
-                                                handleUpdateFileType
-                                            }
-                                            handleDeleteFileType={
-                                                handleDeleteFileType
-                                            }
-                                        />
-                                    ))}
+                                {dataFiltered.map((row) => (
+                                    <FileTypeTableRow
+                                        key={row.id}
+                                        id={row.id}
+                                        type={row.type}
+                                        handleEditFileType={handleEditFileType}
+                                        handleDeleteFileType={
+                                            handleDeleteFileType
+                                        }
+                                    />
+                                ))}
 
                                 <TableEmptyRows
                                     height={77}
@@ -246,47 +197,49 @@ export default function FileTypePage() {
                 />
                 <Dialog
                     fullWidth
-                    open={createOpen}
+                    open={addOpen}
                     onClose={() => {
-                        setCreateOpen(false);
+                        setAddOpen(false);
                     }}
                     PaperProps={{
                         component: "form",
                         onSubmit: (event) => {
                             event.preventDefault();
-                            handleCreateFileType(types);
-                            setCreateOpen(false);
+                            handleAddFileType(types);
+                            setAddOpen(false);
                             setTypes("");
                         },
                     }}
                 >
-                    <DialogTitle>Create Type</DialogTitle>
+                    <DialogTitle>Add File Type</DialogTitle>
                     <DialogContent>
                         <TextField
                             autoFocus
                             required
                             defaultValue={types}
-                            margin="dense"
                             id="type"
                             name="type"
                             label="Type"
                             fullWidth
-                            variant="outlined"
                             onChange={(e) => {
                                 setTypes(e.target.value);
                             }}
+                            sx={{ margin: "8px 0px" }}
                         />
                     </DialogContent>
                     <DialogActions>
                         <Button
                             onClick={() => {
-                                setCreateOpen(false);
+                                setAddOpen(false);
                                 setTypes("");
                             }}
+                            variant="outlined"
                         >
                             Cancel
                         </Button>
-                        <Button type="submit">Save</Button>
+                        <Button type="submit" variant="contained">
+                            Save
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </Card>

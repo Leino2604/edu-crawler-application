@@ -3,18 +3,14 @@ import PropTypes from "prop-types";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-import Stack from "@mui/material/Stack";
 import Popover from "@mui/material/Popover";
 import TableRow from "@mui/material/TableRow";
-import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
 import TableCell from "@mui/material/TableCell";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 
-import Label from "../../components/label";
 import Iconify from "../../components/iconify";
-import EditModal from "./edit-modal";
 import { useQuery } from "@tanstack/react-query";
 import { exportXls, getArticleById } from "../../services/article.api";
 import {
@@ -24,6 +20,8 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Stack,
+    TextField,
 } from "@mui/material";
 
 // ----------------------------------------------------------------------
@@ -33,12 +31,10 @@ export default function ArticleTableRow({
     id,
     title,
     url,
-    handleClick,
     handleDeleteArticle,
 }) {
-    const [data, setData] = useState(null);
     const [open, setOpen] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [detailOpen, setDetailOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
     const { data: articleInfo } = useQuery({
@@ -51,27 +47,9 @@ export default function ArticleTableRow({
         queryFn: () => exportXls(id),
     });
 
-    const handleOpenMenu = (event) => {
-        setOpen(event.currentTarget);
-    };
-
-    const handleCloseMenu = () => {
-        setOpen(null);
-    };
-
-    //Local storage. getByProfile
-
     return (
         <>
             <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        disableRipple
-                        checked={selected}
-                        onChange={handleClick}
-                    />
-                </TableCell>
-
                 <TableCell component="th" scope="row">
                     <Typography variant="subtitle2" noWrap>
                         {id}
@@ -83,7 +61,11 @@ export default function ArticleTableRow({
                 <TableCell>{url}</TableCell>
 
                 <TableCell align="right">
-                    <IconButton onClick={handleOpenMenu}>
+                    <IconButton
+                        onClick={(e) => {
+                            setOpen(e.currentTarget);
+                        }}
+                    >
                         <Iconify icon="eva:more-vertical-fill" />
                     </IconButton>
                 </TableCell>
@@ -92,7 +74,9 @@ export default function ArticleTableRow({
             <Popover
                 open={!!open}
                 anchorEl={open}
-                onClose={handleCloseMenu}
+                onClose={() => {
+                    setOpen(null);
+                }}
                 anchorOrigin={{ vertical: "top", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
                 PaperProps={{
@@ -101,8 +85,8 @@ export default function ArticleTableRow({
             >
                 <MenuItem
                     onClick={() => {
-                        setShowEditModal(true);
-                        handleCloseMenu();
+                        setOpen(null);
+                        setDetailOpen(true);
                     }}
                 >
                     <Iconify icon="lets-icons:view-alt-fill" sx={{ mr: 2 }} />
@@ -111,8 +95,7 @@ export default function ArticleTableRow({
 
                 <MenuItem
                     onClick={() => {
-                        console.log(Object.keys(articleXls?.data));
-                        console.log(Object.keys(articleXls?.data).splice(7, 8));
+                        setOpen(null);
                         const workbook = XLSX.utils.book_new();
 
                         function processKeywords(keywords) {
@@ -142,7 +125,7 @@ export default function ArticleTableRow({
                         );
 
                         const exportData = [
-                            ["Key", "Value"], // Headers
+                            ["Key", "Value"],
                             ["Title", articleXls?.data.title],
                             ["Domain", articleXls?.data.domain],
                             ["URL", articleXls?.data.url],
@@ -152,26 +135,20 @@ export default function ArticleTableRow({
                             ],
                             ["Last Update", articleXls?.data.lastUpdate],
                             ["Content", articleXls?.data.content],
-                            ["Keywords", JSON.stringify(processedKeywords)], // Convert keywords to string
+                            ["Keywords", JSON.stringify(processedKeywords)],
                         ];
 
                         const sheet = XLSX.utils.aoa_to_sheet(exportData);
 
-                        // Append the worksheet to the workbook
                         XLSX.utils.book_append_sheet(workbook, sheet, "Data");
 
-                        // Generate Excel buffer
                         const excelBuffer = XLSX.write(workbook, {
                             bookType: "xlsx",
                             type: "buffer",
                         });
-
-                        // Create a blob
                         const blob = new Blob([excelBuffer], {
                             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
                         });
-
-                        // Save the blob as a file
                         saveAs(blob, "exportedData.xlsx");
                     }}
                 >
@@ -189,12 +166,75 @@ export default function ArticleTableRow({
                     Delete
                 </MenuItem>
             </Popover>
-            <EditModal
-                open={showEditModal}
-                article={articleInfo?.data || {}}
-                onClose={() => setShowEditModal(false)}
-            />
             <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={detailOpen}
+                onClose={() => {
+                    setDetailOpen(false);
+                }}
+            >
+                <DialogTitle>Detail Article</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        fullWidth
+                        label="Url"
+                        name="url"
+                        defaultValue={articleInfo?.data?.url}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                        sx={{
+                            margin: "8px 0px",
+                        }}
+                    />
+                    <TextField
+                        fullWidth
+                        name="domain"
+                        label="Domain"
+                        margin="normal"
+                        defaultValue={articleInfo?.data?.domain}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Keyword"
+                        name="keyword"
+                        margin="normal"
+                        defaultValue={articleInfo?.data?.keyword?.map(
+                            (data) => data.name
+                        )}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Last Update"
+                        name="lastUpdate"
+                        margin="normal"
+                        defaultValue={articleInfo?.data?.lastUpdate}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                    <TextField
+                        fullWidth
+                        multiline
+                        name="content"
+                        label="Content"
+                        margin="normal"
+                        value={articleInfo?.data?.content}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                </DialogContent>
+            </Dialog>
+            <Dialog
+                fullWidth
                 open={deleteOpen}
                 onClose={() => {
                     setDeleteOpen(false);
@@ -203,13 +243,11 @@ export default function ArticleTableRow({
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {"Use Google's location service?"}
+                    Delete Article
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Let Google help apps determine location. This means
-                        sending anonymous location data to Google, even when no
-                        apps are running.
+                        Are you sure you want to delete this article?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

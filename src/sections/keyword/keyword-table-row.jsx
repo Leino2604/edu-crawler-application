@@ -1,10 +1,8 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-import Stack from "@mui/material/Stack";
 import Popover from "@mui/material/Popover";
 import TableRow from "@mui/material/TableRow";
-import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
 import TableCell from "@mui/material/TableCell";
 import Typography from "@mui/material/Typography";
@@ -19,7 +17,6 @@ import {
     TextField,
 } from "@mui/material";
 
-import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 
 // ----------------------------------------------------------------------
@@ -29,26 +26,17 @@ export default function KeywordTableRow({
     id,
     name,
     articleAppearance,
-    handleClick,
-    handleUpdateKeyword,
+    handleEditKeyword,
     handleDeleteKeyword,
 }) {
     const [open, setOpen] = useState(null);
     const [keywords, setKeywords] = useState(name);
-    const [updateOpen, setUpdateOpen] = useState(false);
+    const [editOpden, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
     return (
         <>
             <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        disableRipple
-                        checked={selected}
-                        onChange={handleClick}
-                    />
-                </TableCell>
-
                 <TableCell component="th" scope="row">
                     <Typography variant="subtitle2" noWrap>
                         {id}
@@ -85,7 +73,7 @@ export default function KeywordTableRow({
                 <MenuItem
                     onClick={() => {
                         setOpen(null);
-                        setUpdateOpen(true);
+                        setEditOpen(true);
                     }}
                 >
                     <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
@@ -105,49 +93,52 @@ export default function KeywordTableRow({
             </Popover>
             <Dialog
                 fullWidth
-                open={updateOpen}
+                open={editOpden}
                 onClose={() => {
-                    setUpdateOpen(false);
+                    setEditOpen(false);
                 }}
                 PaperProps={{
                     component: "form",
                     onSubmit: (event) => {
                         event.preventDefault();
-                        handleUpdateKeyword(id, keywords);
-                        setUpdateOpen(false);
+                        handleEditKeyword(id, keywords);
+                        setEditOpen(false);
                     },
                 }}
             >
-                <DialogTitle>Update Type</DialogTitle>
+                <DialogTitle>Edit Keyword</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         required
                         defaultValue={name}
-                        margin="dense"
                         id="keyword"
                         name="keyword"
                         label="Keyword"
                         fullWidth
-                        variant="outlined"
                         onChange={(e) => {
                             setKeywords(e.target.value);
                         }}
+                        sx={{ margin: "8px 0px" }}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button
                         onClick={() => {
-                            setUpdateOpen(false);
+                            setEditOpen(false);
                             setKeywords(name);
                         }}
+                        variant="outlined"
                     >
                         Cancel
                     </Button>
-                    <Button type="submit">Save</Button>
+                    <Button type="submit" variant="contained">
+                        Save
+                    </Button>
                 </DialogActions>
             </Dialog>
             <Dialog
+                fullWidth
                 open={deleteOpen}
                 onClose={() => {
                     setDeleteOpen(false);
@@ -156,13 +147,11 @@ export default function KeywordTableRow({
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {"Use Google's location service?"}
+                    Delete Keyword
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Let Google help apps determine location. This means
-                        sending anonymous location data to Google, even when no
-                        apps are running.
+                        Are you sure you want to delete this keyword?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

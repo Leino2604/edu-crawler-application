@@ -28,26 +28,17 @@ export default function FileTypeTableRow({
     selected,
     id,
     type,
-    handleClick,
-    handleUpdateFileType,
+    handleEditFileType,
     handleDeleteFileType,
 }) {
     const [open, setOpen] = useState(null);
     const [types, setTypes] = useState(type);
-    const [updateOpen, setUpdateOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
     return (
         <>
             <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        disableRipple
-                        checked={selected}
-                        onChange={handleClick}
-                    />
-                </TableCell>
-
                 <TableCell component="th" scope="row">
                     <Typography variant="subtitle2" noWrap>
                         {id}
@@ -71,7 +62,7 @@ export default function FileTypeTableRow({
                 open={!!open}
                 anchorEl={open}
                 onClose={() => {
-                    setOpen(false);
+                    setOpen(null);
                 }}
                 anchorOrigin={{ vertical: "top", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
@@ -82,7 +73,7 @@ export default function FileTypeTableRow({
                 <MenuItem
                     onClick={() => {
                         setOpen(null);
-                        setUpdateOpen(true);
+                        setEditOpen(true);
                     }}
                 >
                     <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
@@ -102,49 +93,52 @@ export default function FileTypeTableRow({
             </Popover>
             <Dialog
                 fullWidth
-                open={updateOpen}
+                open={editOpen}
                 onClose={() => {
-                    setUpdateOpen(false);
+                    setEditOpen(false);
                 }}
                 PaperProps={{
                     component: "form",
                     onSubmit: (event) => {
                         event.preventDefault();
-                        handleUpdateFileType(id, types);
-                        setUpdateOpen(false);
+                        handleEditFileType(id, types);
+                        setEditOpen(false);
                     },
                 }}
             >
-                <DialogTitle>Update Type</DialogTitle>
+                <DialogTitle>Edit File Type</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         required
                         defaultValue={type}
-                        margin="dense"
                         id="type"
                         name="type"
                         label="Type"
                         fullWidth
-                        variant="outlined"
                         onChange={(e) => {
                             setTypes(e.target.value);
                         }}
+                        sx={{ margin: "8px 0px" }}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button
                         onClick={() => {
-                            setUpdateOpen(false);
+                            setEditOpen(false);
                             setTypes(type);
                         }}
+                        variant="outlined"
                     >
                         Cancel
                     </Button>
-                    <Button type="submit">Save</Button>
+                    <Button type="submit" variant="contained">
+                        Save
+                    </Button>
                 </DialogActions>
             </Dialog>
             <Dialog
+                fullWidth
                 open={deleteOpen}
                 onClose={() => {
                     setDeleteOpen(false);
@@ -153,13 +147,11 @@ export default function FileTypeTableRow({
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {"Use Google's location service?"}
+                    Delete File Type
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Let Google help apps determine location. This means
-                        sending anonymous location data to Google, even when no
-                        apps are running.
+                        Are you sure you want to delete this file type?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
