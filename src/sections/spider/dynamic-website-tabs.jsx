@@ -45,7 +45,6 @@ const DynamicWebsiteTabs = ({ spiderData, setSpiderData }) => {
                 },
             }))
         );
-        console.log(tabs);
     }, [spiderData]);
 
     const handleAddTab = () => {

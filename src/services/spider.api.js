@@ -10,8 +10,13 @@ export const getSpiderById = (id) => http.get(`spiders/${id}`);
 
 export const scheduleSpider = ({ id, body }) =>
     http.post(`/spiders/${id}/schedule`, body);
-export const runSpider = (id, userId) => {
-    return http.post(`spiders/${id}/run`, null, { params: userId });
+export const runSpider = ({ id, userId }) => {
+    console.log(id, userId);
+    return http.post(`spiders/${id}/run`, null, {
+        params: {
+            user_id: userId,
+        },
+    });
 };
 export const stopSpider = (id) => http.post(`spiders/${id}/stop`);
 export const deleteSpider = (id) => http.delete(`spiders/${id}`);

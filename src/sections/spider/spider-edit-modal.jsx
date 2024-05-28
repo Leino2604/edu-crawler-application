@@ -290,7 +290,6 @@ export default function SpiderEditModal(props) {
                 filetype: FileTypeList,
                 subfolders: result,
             });
-            console.log(Id, spiderData);
         }
     }, [props, webpageCrawl, websiteCrawl, websiteSearch]);
 

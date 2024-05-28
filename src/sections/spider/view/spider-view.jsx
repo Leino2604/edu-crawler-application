@@ -108,11 +108,14 @@ export default function SpiderPage() {
         });
     };
     const handleRunSpider = (body) => {
-        runMutation.mutate(body, {
-            onSuccess: () => {
-                refetch();
-            },
-        });
+        runMutation.mutate(
+            { id: body, userId: result.id },
+            {
+                onSuccess: () => {
+                    refetch();
+                },
+            }
+        );
     };
     const handleStopSpider = (body) => {
         stopMutation.mutate(body, {
