@@ -96,60 +96,22 @@ export default function ArticleTableRow({
                 <MenuItem
                     onClick={() => {
                         setOpen(null);
-                        const workbook = XLSX.utils.book_new();
 
-                        function processKeywords(keywords) {
-                            let result = [];
-                            keywords.forEach((keyword) => {
-                                let keywordData = {
-                                    id: keyword.id,
-                                    name: keyword.name,
-                                    articleAppearance:
-                                        keyword.articleAppearance,
-                                };
-                                result.push(keywordData);
-                                if (
-                                    keyword.children &&
-                                    keyword.children.length > 0
-                                ) {
-                                    keywordData.children = processKeywords(
-                                        keyword.children
-                                    );
-                                }
-                            });
-                            return result;
-                        }
-
-                        const processedKeywords = processKeywords(
-                            articleXls?.data.keyword
+                        const dataStr = JSON.stringify(
+                            articleXls?.data,
+                            null,
+                            2
                         );
-
-                        const exportData = [
-                            ["Key", "Value"],
-                            ["Title", articleXls?.data.title],
-                            ["Domain", articleXls?.data.domain],
-                            ["URL", articleXls?.data.url],
-                            [
-                                "First Crawl Date",
-                                articleXls?.data.firstCrawlDate,
-                            ],
-                            ["Last Update", articleXls?.data.lastUpdate],
-                            ["Content", articleXls?.data.content],
-                            ["Keywords", JSON.stringify(processedKeywords)],
-                        ];
-
-                        const sheet = XLSX.utils.aoa_to_sheet(exportData);
-
-                        XLSX.utils.book_append_sheet(workbook, sheet, "Data");
-
-                        const excelBuffer = XLSX.write(workbook, {
-                            bookType: "xlsx",
-                            type: "buffer",
+                        const blob = new Blob([dataStr], {
+                            type: "application/json",
                         });
-                        const blob = new Blob([excelBuffer], {
-                            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-                        });
-                        saveAs(blob, "exportedData.xlsx");
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = "data.json";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
                     }}
                 >
                     <Iconify icon="material-symbols:download" sx={{ mr: 2 }} />

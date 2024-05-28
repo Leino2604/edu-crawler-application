@@ -14,7 +14,11 @@ import TablePagination from "@mui/material/TablePagination";
 import Iconify from "../../../components/iconify";
 import Scrollbar from "../../../components/scrollbar";
 
-import { deleteArticle, getArticle } from "../../../services/article.api";
+import {
+    deleteArticle,
+    exportAllXls,
+    getArticle,
+} from "../../../services/article.api";
 
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
@@ -41,7 +45,7 @@ export default function ArticlePage() {
         mutationFn: (body) => deleteArticle(body),
     });
 
-    const { data, refetch } = useQuery({
+    const { data: articles, refetch } = useQuery({
         queryKey: ["article", page, rowsPerPage],
         queryFn: () => {
             return result.Role == "Admin"
@@ -55,6 +59,11 @@ export default function ArticlePage() {
         placeholderData: keepPreviousData,
     });
 
+    const { data: articleXls } = useQuery({
+        queryKey: ["allarticlexls"],
+        queryFn: () => exportAllXls({ page: 0, articlePerPage: 5 }),
+    });
+
     const handleSort = (event, id) => {
         const isAsc = orderBy === id && order === "asc";
         if (id !== "") {
@@ -65,7 +74,7 @@ export default function ArticlePage() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelecteds = data?.data?.detail?.map((n) => n.id);
+            const newSelecteds = articles?.data?.detail?.map((n) => n.id);
             setSelected(newSelecteds);
             return;
         }
@@ -105,7 +114,7 @@ export default function ArticlePage() {
     };
 
     const dataFiltered = applyFilter({
-        inputData: data?.data?.detail || [],
+        inputData: articles?.data?.detail || [],
         comparator: getComparator(order, orderBy),
         filterName,
     });
@@ -134,6 +143,23 @@ export default function ArticlePage() {
                     variant="contained"
                     color="inherit"
                     startIcon={<Iconify icon="material-symbols:download" />}
+                    onClick={() => {
+                        const dataStr = JSON.stringify(
+                            articleXls?.data,
+                            null,
+                            2
+                        );
+                        const blob = new Blob([dataStr], {
+                            type: "application/json",
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = "data.json";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }}
                 >
                     Export All Article
                 </Button>
@@ -146,7 +172,7 @@ export default function ArticlePage() {
                             <ArticleTableHead
                                 order={order}
                                 orderBy={orderBy}
-                                rowCount={data?.data?.total_article || 0}
+                                rowCount={articles?.data?.total_article || 0}
                                 numSelected={selected.length}
                                 onRequestSort={handleSort}
                                 onSelectAllClick={handleSelectAllClick}
@@ -181,7 +207,7 @@ export default function ArticlePage() {
                                     emptyRows={emptyRows(
                                         page,
                                         rowsPerPage,
-                                        data?.data?.total_article
+                                        articles?.data?.total_article
                                     )}
                                 />
 
@@ -194,7 +220,7 @@ export default function ArticlePage() {
                 <TablePagination
                     page={page}
                     component="div"
-                    count={data?.data?.total_article || 0}
+                    count={articles?.data?.total_article || 0}
                     rowsPerPage={rowsPerPage}
                     onPageChange={handleChangePage}
                     rowsPerPageOptions={[5, 10, 25]}

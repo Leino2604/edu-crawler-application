@@ -6,7 +6,12 @@ export const getArticleById = (id) => http.get(`articles/${id}`);
 
 export const exportXls = (id) => http.get(`article/${id}/export/json`);
 
-export const exportAllXls = (user_id) =>
-    http.get(`/users/${user_id}/articles/export/xls`);
+export const exportAllXls = ({ page, articlePerPage }) =>
+    http.get(`/article/export/json`, {
+        params: {
+            page: page,
+            article_per_page: articlePerPage,
+        },
+    });
 
 export const deleteArticle = (id) => http.delete(`article/${id}`);
