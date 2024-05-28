@@ -22,6 +22,7 @@ import ArticleTableRow from "../article-table-row";
 import ArticleTableHead from "../article-table-head";
 import ArticleTableToolbar from "../article-table-toolbar";
 import { emptyRows, applyFilter, getComparator } from "../utils";
+import { getArticleByUserId } from "../../../services/user.api";
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +33,9 @@ export default function ArticlePage() {
     const [orderBy, setOrderBy] = useState("id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const result = localStorage.getItem("profile")
+        ? JSON.parse(localStorage.getItem("profile"))
+        : null;
 
     const deleteMutation = useMutation({
         mutationFn: (body) => deleteArticle(body),
@@ -39,7 +43,15 @@ export default function ArticlePage() {
 
     const { data, refetch } = useQuery({
         queryKey: ["article", page, rowsPerPage],
-        queryFn: () => getArticle({ page: page, articlePerPage: rowsPerPage }),
+        queryFn: () => {
+            return result.Role == "Admin"
+                ? getArticle({ page: page, articlePerPage: rowsPerPage })
+                : getArticleByUserId({
+                      id: result?.id,
+                      page: page,
+                      articlePerPage: rowsPerPage,
+                  });
+        },
         placeholderData: keepPreviousData,
     });
 

@@ -37,6 +37,9 @@ export default function AccountPopover() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [open, setOpen] = useState(null);
+    const result = localStorage.getItem("profile")
+        ? JSON.parse(localStorage.getItem("profile"))
+        : null;
 
     const handleOpen = (event) => {
         setOpen(event.currentTarget);
@@ -62,7 +65,7 @@ export default function AccountPopover() {
             >
                 <Avatar
                     src={account.photoURL}
-                    alt={account.displayName}
+                    alt={result?.Username}
                     sx={{
                         width: 36,
                         height: 36,
@@ -70,7 +73,7 @@ export default function AccountPopover() {
                             `solid 2px ${theme.palette.background.default}`,
                     }}
                 >
-                    {account.displayName.charAt(0).toUpperCase()}
+                    {result?.Username.charAt(0).toUpperCase()}
                 </Avatar>
             </IconButton>
 
@@ -91,14 +94,14 @@ export default function AccountPopover() {
             >
                 <Box sx={{ my: 1.5, px: 2 }}>
                     <Typography variant="subtitle2" noWrap>
-                        {account.displayName}
+                        {result?.Username}
                     </Typography>
                     <Typography
                         variant="body2"
                         sx={{ color: "text.secondary" }}
                         noWrap
                     >
-                        {account.email}
+                        {result?.Mail}
                     </Typography>
                 </Box>
 

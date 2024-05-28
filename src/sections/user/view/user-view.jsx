@@ -14,7 +14,6 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     IconButton,
     InputAdornment,
@@ -168,6 +167,9 @@ export default function UserPage() {
                                         id={row.id}
                                         username={row.username}
                                         role={row.role}
+                                        fullname={row.fullname}
+                                        phone={row.phone}
+                                        mail={row.address}
                                         accountStatus={row.accountStatus}
                                         handleEditUser={handleEditUser}
                                         handleDeleteUser={handleDeleteUser}

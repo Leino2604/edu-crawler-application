@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
@@ -11,33 +11,61 @@ import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
 
-import Iconify from "../../../components/iconify";
-import Scrollbar from "../../../components/scrollbar";
-
-import { getSpider } from "../../../services/spider.api";
-
 import TableNoData from "../table-no-data";
 import TableEmptyRows from "../table-empty-rows";
 import SpiderTableRow from "../spider-table-row";
 import SpiderTableHead from "../spider-table-head";
-import SpiderTableToolbar from "../spider-table-toolbar";
+import SpiderAddModal from "../spider-add-modal";
 import { emptyRows, applyFilter, getComparator } from "../utils";
-import SpiderCreateModal from "../spider-create-modal";
+
+import Iconify from "../../../components/iconify";
+import Scrollbar from "../../../components/scrollbar";
+import {
+    deleteSpider,
+    getSpider,
+    runSpider,
+    scheduleSpider,
+    stopSpider,
+} from "../../../services/spider.api";
+import { getSpiderByUserId } from "../../../services/user.api";
 
 // ----------------------------------------------------------------------
 
 export default function SpiderPage() {
     const [page, setPage] = useState(0);
     const [order, setOrder] = useState("asc");
-    const [selected, setSelected] = useState([]);
     const [orderBy, setOrderBy] = useState("Id");
     const [filterName, setFilterName] = useState("");
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [showCreateSpiderModal, setShowCreateSpiderModal] = useState(false);
+    const result = localStorage.getItem("profile")
+        ? JSON.parse(localStorage.getItem("profile"))
+        : null;
 
-    const { data } = useQuery({
+    const scheduleMutation = useMutation({
+        mutationFn: (body) => scheduleSpider(body),
+    });
+    const runMutation = useMutation({
+        mutationFn: (body) => runSpider(body),
+    });
+    const stopMutation = useMutation({
+        mutationFn: (body) => stopSpider(body),
+    });
+    const deleteMutation = useMutation({
+        mutationFn: (body) => deleteSpider(body),
+    });
+
+    const { data, refetch } = useQuery({
         queryKey: ["spider", page, rowsPerPage],
-        queryFn: () => getSpider({ page: page, spider_per_page: rowsPerPage }),
+        queryFn: () => {
+            return result?.Role == "Admin"
+                ? getSpider({ page: page, spider_per_page: rowsPerPage })
+                : getSpiderByUserId({
+                      id: result.id,
+                      page: page,
+                      spider_per_page: rowsPerPage,
+                  });
+        },
         placeholderData: keepPreviousData,
     });
 
@@ -47,33 +75,6 @@ export default function SpiderPage() {
             setOrder(isAsc ? "desc" : "asc");
             setOrderBy(id);
         }
-    };
-
-    const handleSelectAllClick = (event) => {
-        if (event.target.checked) {
-            const newSelecteds = data?.data?.detail?.map((n) => n.Id);
-            setSelected(newSelecteds);
-            return;
-        }
-        setSelected([]);
-    };
-
-    const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
-        let newSelected = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-        setSelected(newSelected);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -97,6 +98,36 @@ export default function SpiderPage() {
     });
 
     const notFound = !dataFiltered.length && !!filterName;
+
+    const handleScheduleSpider = (body) => {
+        scheduleMutation.mutate(body, {
+            onSuccess: (data) => {
+                console.log(data);
+                refetch();
+            },
+        });
+    };
+    const handleRunSpider = (body) => {
+        runMutation.mutate(body, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
+    const handleStopSpider = (body) => {
+        stopMutation.mutate(body, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
+    const handleDeleteSpider = (id) => {
+        deleteMutation.mutate(id, {
+            onSuccess: () => {
+                refetch();
+            },
+        });
+    };
 
     return (
         <Container>
@@ -125,10 +156,7 @@ export default function SpiderPage() {
                             <SpiderTableHead
                                 order={order}
                                 orderBy={orderBy}
-                                rowCount={data?.data?.total_spider || 0}
-                                numSelected={selected.length}
                                 onRequestSort={handleSort}
-                                onSelectAllClick={handleSelectAllClick}
                                 headLabel={[
                                     { id: "Id", label: "Name" },
                                     { id: "Url", label: "Url" },
@@ -163,12 +191,13 @@ export default function SpiderPage() {
                                         lastRunUpdateArticle={
                                             row.LastRunUpdateArticle
                                         }
-                                        selected={
-                                            selected.indexOf(row.Id) !== -1
+                                        handleScheduleSpider={
+                                            handleScheduleSpider
                                         }
-                                        handleClick={(event) =>
-                                            handleClick(event, row.Id)
-                                        }
+                                        handleRunSpider={handleRunSpider}
+                                        handleStopSpider={handleStopSpider}
+                                        handleDeleteSpider={handleDeleteSpider}
+                                        refetchRow={refetch}
                                     />
                                 ))}
 
@@ -197,9 +226,10 @@ export default function SpiderPage() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Card>
-            <SpiderCreateModal
+            <SpiderAddModal
                 open={showCreateSpiderModal}
                 onClose={() => setShowCreateSpiderModal(false)}
+                refetchRow={refetch}
             />
         </Container>
     );

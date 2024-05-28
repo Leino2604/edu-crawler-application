@@ -1,30 +1,22 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import PropTypes from "prop-types";
 
-import Swal from "sweetalert2";
-import Stack from "@mui/material/Stack";
 import Popover from "@mui/material/Popover";
 import TableRow from "@mui/material/TableRow";
-import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
 import TableCell from "@mui/material/TableCell";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 
+import SpiderDeleteModal from "./spider-delete-modal";
+
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import SpiderDetailModal from "./spider-detail-modal";
-import SpiderEditBasicModal from "./spider-edit-basic-modal";
-import SpiderEditAdvanceModal from "./spider-edit-advance-modal";
-import SpiderEditScheduleModal from "./spider-edit-schedule-modal";
+import SpiderEditModal from "./spider-edit-modal";
+import SpiderScheduleModal from "./spider-schedule-modal";
 import { useQuery } from "@tanstack/react-query";
 import { getSpiderById } from "../../services/spider.api";
-import {
-    runSpiderById,
-    stopSpiderById,
-    deleteSpiderById,
-} from "../../services/spider.api";
 
 // ----------------------------------------------------------------------
 
@@ -37,120 +29,24 @@ export default function SpiderTableRow({
     lastRunNewArticle,
     lastRunUpdateArticle,
     status,
-    handleClick,
+    handleScheduleSpider,
+    handleRunSpider,
+    handleStopSpider,
+    handleDeleteSpider,
+    refetchRow,
 }) {
     const [open, setOpen] = useState(null);
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showScheduleModal, setShowScheduleModal] = useState(false);
-    const { data } = useQuery({
-        queryKey: ["spider", id],
-        queryFn: () => getSpiderById(id),
-    });
+    const [scheduleOpen, setScheduleOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
 
     const profile = JSON.parse(localStorage.getItem("profile"));
 
-    const handleOpenMenu = (event) => {
-        setOpen(event.currentTarget);
-    };
-
-    const handleCloseMenu = () => {
-        setOpen(null);
-    };
-
-    const deleteSpider = async () => {
-        const response = await deleteSpiderById(id);
-
-        if (response.status == 200) {
-            Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: "true",
-            }).fire({
-                icon: "success",
-                title:
-                    "\n\nDelete spider " +
-                    id +
-                    " successfully. Please refresh page.",
-            });
-        } else {
-            Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: "true",
-            }).fire({
-                icon: "error",
-                title: "\n\nDelete failed",
-            });
-        }
-    };
-
-    const runSpider = async () => {
-        const response = await runSpiderById(id, { user_id: profile.id });
-
-        if (response.status == 200) {
-            Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: "true",
-            }).fire({
-                icon: "success",
-                title:
-                    "\n\nRun spider " +
-                    id +
-                    " successfully. Please refresh page.",
-            });
-        } else {
-            Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: "true",
-            }).fire({
-                icon: "error",
-                title: "\n\nRun failed",
-            });
-        }
-    };
-
-    const stopSpider = async () => {
-        const response = await stopSpiderById(id);
-
-        if (response.status == 200) {
-            Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: "true",
-            }).fire({
-                icon: "success",
-                title:
-                    "\n\nStop spider " +
-                    id +
-                    " successfully. Please refresh page.",
-            });
-        } else {
-            Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: "true",
-            }).fire({
-                icon: "error",
-                title: "\n\nStop failed",
-            });
-        }
-    };
+    const { data, refetch } = useQuery({
+        queryKey: ["spider", id],
+        queryFn: () => getSpiderById(id),
+    });
 
     return (
         <>
@@ -183,7 +79,11 @@ export default function SpiderTableRow({
                 </TableCell>
 
                 <TableCell align="right">
-                    <IconButton onClick={handleOpenMenu}>
+                    <IconButton
+                        onClick={(event) => {
+                            setOpen(event.currentTarget);
+                        }}
+                    >
                         <Iconify icon="eva:more-vertical-fill" />
                     </IconButton>
                 </TableCell>
@@ -192,7 +92,9 @@ export default function SpiderTableRow({
             <Popover
                 open={!!open}
                 anchorEl={open}
-                onClose={handleCloseMenu}
+                onClose={() => {
+                    setOpen(null);
+                }}
                 anchorOrigin={{ vertical: "top", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
                 PaperProps={{
@@ -200,10 +102,45 @@ export default function SpiderTableRow({
                 }}
             >
                 <MenuItem
-                    onClick={
-                        (status === "Available" && runSpider) ||
-                        (status === "Running" && stopSpider)
-                    }
+                    onClick={() => {
+                        setOpen(null);
+                        setShowViewModal(true);
+                    }}
+                >
+                    <Iconify icon="eva:alert-circle-outline" sx={{ mr: 2 }} />
+                    See Detail
+                </MenuItem>
+
+                <MenuItem
+                    onClick={() => {
+                        setOpen(null);
+                        setShowEditModal(true);
+                    }}
+                >
+                    <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+                    Edit
+                </MenuItem>
+
+                {(profile.Role == "Admin" ||
+                    profile.Role == "Pro" ||
+                    profile.Role == "Standard") && (
+                    <MenuItem
+                        onClick={() => {
+                            setOpen(null);
+                            setScheduleOpen(true);
+                        }}
+                    >
+                        <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+                        Schedule
+                    </MenuItem>
+                )}
+
+                <MenuItem
+                    onClick={() => {
+                        setOpen(null);
+                        (status === "Available" && handleRunSpider(id)) ||
+                            (status === "Running" && handleStopSpider(id));
+                    }}
                     sx={{
                         color:
                             (status === "Available" && "success.main") ||
@@ -224,41 +161,8 @@ export default function SpiderTableRow({
 
                 <MenuItem
                     onClick={() => {
-                        setShowViewModal(true);
-                        handleCloseMenu();
-                    }}
-                >
-                    <Iconify icon="eva:alert-circle-outline" sx={{ mr: 2 }} />
-                    See Detail
-                </MenuItem>
-
-                <MenuItem
-                    onClick={() => {
-                        setShowEditModal(true);
-                        handleCloseMenu();
-                    }}
-                >
-                    <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-                    Edit
-                </MenuItem>
-
-                {(profile.Role == "Admin" ||
-                    profile.Role == "Pro" ||
-                    profile.Role == "Standard") && (
-                    <MenuItem
-                        onClick={() => {
-                            setShowScheduleModal(true);
-                            handleCloseMenu();
-                        }}
-                    >
-                        <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-                        Schedule
-                    </MenuItem>
-                )}
-
-                <MenuItem
-                    onClick={() => {
-                        deleteSpider();
+                        setOpen(null);
+                        setDeleteOpen(true);
                     }}
                     sx={{ color: "error.main" }}
                 >
@@ -271,20 +175,25 @@ export default function SpiderTableRow({
                 article={data?.data || {}}
                 onClose={() => setShowViewModal(false)}
             />
-            {/*<SpiderEditBasicModal
+            <SpiderEditModal
                 open={showEditModal}
                 article={data?.data || {}}
                 onClose={() => setShowEditModal(false)}
-                  />*/}
-            <SpiderEditAdvanceModal
-                open={showEditModal}
-                article={data?.data || {}}
-                onClose={() => setShowEditModal(false)}
+                refetch={refetch}
+                refetchRow={refetchRow}
             />
-            <SpiderEditScheduleModal
-                open={showScheduleModal}
+            <SpiderScheduleModal
+                open={scheduleOpen}
                 article={data?.data || {}}
-                onClose={() => setShowScheduleModal(false)}
+                handleScheduleSpider={handleScheduleSpider}
+                refetch={refetch}
+                onClose={() => setScheduleOpen(false)}
+            />
+            <SpiderDeleteModal
+                open={deleteOpen}
+                id={id}
+                handleDeleteSpider={handleDeleteSpider}
+                onClose={() => setDeleteOpen(false)}
             />
         </>
     );

@@ -13,3 +13,8 @@ export const addUser = (body) =>
 export const editUser = (body) => http.put(`users/${body.user_id}`, body);
 
 export const deleteUser = (id) => http.delete(`users/${id}`);
+
+export const getArticleByUserId = (params) =>
+    http.delete(`users/${params.id}/articles`, { params });
+export const getSpiderByUserId = (params) =>
+    http.delete(`users/${params.id}/spiders`, { params });

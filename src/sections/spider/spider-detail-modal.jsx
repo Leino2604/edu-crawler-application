@@ -1,275 +1,535 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import { Input } from '@mui/base/Input';
-import { Unstable_Grid as Grid } from '@mui/system';
-import { TextField } from "@mui/material";
-import Button from "@mui/material/Button";
-import Iconify from "../../components/iconify";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getWebpageSpiderCrawlRulesById, getWebsiteSpiderCrawlRulesById, getWebsiteSpiderSearchRulesById } from "../../services/spider.api";
+import { Fragment } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
-const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "70%",
-    height: "75%",
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-    overflow: "auto",
-};
+import Grid from "@mui/material/Unstable_Grid2";
+import {
+    Dialog,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    TextField,
+} from "@mui/material";
+
+import {
+    getWebpageSpiderCrawlRulesById,
+    getWebsiteSpiderCrawlRulesById,
+    getWebsiteSpiderSearchRulesById,
+} from "../../services/spider.api";
 
 function WebpageSpiderCrawlRulesModal({ spiderId }) {
-  const { data } = useQuery({
-    queryKey: ["webpageSpiderCrawlRules"],
-    queryFn: () => getWebpageSpiderCrawlRulesById(spiderId),
-    keepPreviousData: true,
-  });
+    const { data } = useQuery({
+        queryKey: ["webpageSpiderCrawlRules", spiderId],
+        queryFn: () => getWebpageSpiderCrawlRulesById(spiderId),
+        placeholderData: keepPreviousData,
+    });
 
-  return (
-    <Grid xs={12}>
-        {data?.data?.map((crawlRulesData, index) => (
-          <Grid xs={12}>
-            {crawlRulesData.Tag} {crawlRulesData.ClassName && "." + crawlRulesData.ClassName} {crawlRulesData.IDName && "#" + crawlRulesData.IDName}
-          </Grid>
-        ))}
-    </Grid>
-  );
+    return data?.data?.length != 0 ? (
+        <>
+            <DialogContentText sx={{ fontWeight: "bold", color: "#1877f2" }}>
+                Crawl Rules
+            </DialogContentText>
+            <Grid container spacing={2} margin={1}>
+                {data?.data?.map((crawlRulesData, index) => (
+                    <Fragment key={index}>
+                        <Grid xs={4}>
+                            <TextField
+                                fullWidth
+                                id={`tagName${index + 1}`}
+                                name={`tagName${index + 1}`}
+                                label={`Tag Name ${index + 1}`}
+                                value={crawlRulesData.Tag || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={4}>
+                            <TextField
+                                fullWidth
+                                id={`className${index + 1}`}
+                                name={`className${index + 1}`}
+                                label={`Class Name ${index + 1}`}
+                                value={crawlRulesData.ClassName || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={4}>
+                            <TextField
+                                fullWidth
+                                id={`idName${index + 1}`}
+                                name={`idName${index + 1}`}
+                                label={`Id Name ${index + 1}`}
+                                value={crawlRulesData.IDName || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                    </Fragment>
+                ))}
+            </Grid>
+        </>
+    ) : (
+        <></>
+    );
 }
 
 function WebsiteSpiderCrawlRulesModal({ spiderId }) {
-  const { data } = useQuery({
-    queryKey: ["websiteSpiderCrawlRules"],
-    queryFn: () => getWebsiteSpiderCrawlRulesById(spiderId),
-    keepPreviousData: true,
-  });
+    const { data } = useQuery({
+        queryKey: ["websiteSpiderCrawlRules", spiderId],
+        queryFn: () => getWebsiteSpiderCrawlRulesById(spiderId),
+        keepPreviousData: true,
+    });
 
-  return (
-    <Grid xs={12}>
-        <Grid xs={12}>
-          <h4>Crawl Rules</h4>
-        </Grid>
-        {data?.data?.map((crawlRulesData, index) => (
-          <Grid xs={12}>
-            Subfolder {crawlRulesData.Name} : {crawlRulesData.Tag} {crawlRulesData.ClassName && "." + crawlRulesData.ClassName} {crawlRulesData.IDName && "#" + crawlRulesData.IDName}
-          </Grid>
-        ))}
-    </Grid>
-  );
+    return data?.data?.length != 0 ? (
+        <>
+            <DialogContentText sx={{ fontWeight: "bold", color: "#1877f2" }}>
+                Crawl Rules
+            </DialogContentText>
+            <Grid container spacing={2} margin={1}>
+                {data?.data?.map((crawlRulesData, index) => (
+                    <Fragment key={index}>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`subfolder${index + 1}`}
+                                name={`subfolder${index + 1}`}
+                                label={`Subfolder ${index + 1}`}
+                                value={crawlRulesData.Name}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`tagName${index + 1}`}
+                                name={`tagName${index + 1}`}
+                                label={`Tag Name ${index + 1}`}
+                                value={crawlRulesData.Tag || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`className${index + 1}`}
+                                name={`className${index + 1}`}
+                                label={`Class Name ${index + 1}`}
+                                value={crawlRulesData.ClassName || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`idName${index + 1}`}
+                                name={`idName${index + 1}`}
+                                label={`Id Name ${index + 1}`}
+                                value={crawlRulesData.IDName || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                    </Fragment>
+                ))}
+            </Grid>
+        </>
+    ) : (
+        <></>
+    );
 }
 
 function WebsiteSpiderSearchRulesModal({ spiderId }) {
-  const { data } = useQuery({
-    queryKey: ["websiteSpiderSearchRules"],
-    queryFn: () => getWebsiteSpiderSearchRulesById(spiderId),
-    keepPreviousData: true,
-  });
+    const { data } = useQuery({
+        queryKey: ["websiteSpiderSearchRules", spiderId],
+        queryFn: () => getWebsiteSpiderSearchRulesById(spiderId),
+        keepPreviousData: true,
+    });
 
-  return (
-    <Grid xs={12}>
-        <Grid xs={12}>
-          <h4>Search Rules</h4>
-        </Grid>
-        {data?.data?.map((crawlRulesData, index) => (
-          <Grid xs={12}>
-            Subfolder {crawlRulesData.Name} : {crawlRulesData.Tag} {crawlRulesData.ClassName && "." + crawlRulesData.ClassName} {crawlRulesData.IDName && "#" + crawlRulesData.IDName}
-          </Grid>
-        ))}
-    </Grid>
-  );
+    return data?.data?.length != 0 ? (
+        <>
+            <DialogContentText sx={{ fontWeight: "bold", color: "#1877f2" }}>
+                Search Rules
+            </DialogContentText>
+            <Grid container spacing={2} margin={1}>
+                {data?.data?.map((crawlRulesData, index) => (
+                    <Fragment key={index}>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`subfolder${index + 1}`}
+                                name={`subfolder${index + 1}`}
+                                label={`Subfolder ${index + 1}`}
+                                value={crawlRulesData.Name}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`tagName${index + 1}`}
+                                name={`tagName${index + 1}`}
+                                label={`Tag Name ${index + 1}`}
+                                value={crawlRulesData.Tag || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`className${index + 1}`}
+                                name={`className${index + 1}`}
+                                label={`Class Name ${index + 1}`}
+                                value={crawlRulesData.ClassName || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid xs={3}>
+                            <TextField
+                                fullWidth
+                                id={`idName${index + 1}`}
+                                name={`idName${index + 1}`}
+                                label={`Id Name ${index + 1}`}
+                                value={crawlRulesData.IDName || "All"}
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                            />
+                        </Grid>
+                    </Fragment>
+                ))}
+            </Grid>
+        </>
+    ) : (
+        <></>
+    );
 }
 
 function WebsiteSpiderSubfolderModal({ spiderId }) {
-  return (
-    <Grid xs={12}>    
-        <Grid container spacing={0} sx={{ flexGrow: 0 }}>    
-            <Grid xs={6}>
-                <WebsiteSpiderCrawlRulesModal spiderId={spiderId} />
-            </Grid>
-            <Grid xs={6}>
-                <WebsiteSpiderSearchRulesModal spiderId={spiderId} />
-            </Grid>
-        </Grid>
-    </Grid>       
-  );
+    return (
+        <>
+            <WebsiteSpiderCrawlRulesModal spiderId={spiderId} />
+            <WebsiteSpiderSearchRulesModal spiderId={spiderId} />
+        </>
+    );
 }
 
 export default function SpiderDetailModal(prop) {
-    const { Id, Type, Url, Status, Delay, GraphDeep, MaxThread, Keyword, FileType, LastRunDate, LastEndDate, RunTime, TotalPage, LastRunNewArticle, LastRunUpdateArticle, LastRunUnchangeArticle, IsSchedule, ScheduleTime} = prop.article;
-    const KeywordList = Keyword ? Keyword.map((data) => data.Value) : []
-    const FileTypeList = FileType ? FileType.map((data) => data.Value) : []
+    const {
+        Id,
+        Type,
+        Url,
+        Status,
+        Delay,
+        GraphDeep,
+        MaxThread,
+        Keyword,
+        FileType,
+        LastRunDate,
+        LastEndDate,
+        RunTime,
+        TotalPage,
+        LastRunNewArticle,
+        LastRunUpdateArticle,
+        LastRunUnchangeArticle,
+        IsSchedule,
+        ScheduleTime,
+    } = prop.article;
+    const KeywordList = Keyword ? Keyword.map((data) => data.Value) : [];
+    const FileTypeList = FileType ? FileType.map((data) => data.Value) : [];
+    const convertSecondsToTimeFormat = (seconds) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+
+        const formattedMinutes = minutes.toString().padStart(2, "0");
+        const formattedSeconds = remainingSeconds.toString().padStart(2, "0");
+
+        return `${hours}:${formattedMinutes}:${formattedSeconds}`;
+    };
 
     return (
-        <Modal
-            {...prop}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-        >
-            <Box sx={style}>
-                <Grid container spacing={0} sx={{ flexGrow: 0 }}>
-                    <Grid xs={10}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Spider {Id}
-                        </Typography>
+        <Dialog {...prop} fullWidth maxWidth="md">
+            <DialogTitle>Spider {Id}</DialogTitle>
+            <DialogContent>
+                <DialogContentText
+                    sx={{ fontWeight: "bold", color: "#1877f2" }}
+                >
+                    Basic Configuration
+                </DialogContentText>
+                <Grid container spacing={2} margin={1}>
+                    <Grid xs={4}>
+                        <TextField
+                            fullWidth
+                            id="url"
+                            name="url"
+                            label="Url"
+                            value={Url}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid xs={4}>
+                        <TextField
+                            fullWidth
+                            id="type"
+                            name="type"
+                            label="Type"
+                            value={Type}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid xs={4}>
+                        <TextField
+                            fullWidth
+                            id="status"
+                            name="status"
+                            label="Status"
+                            value={Status}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                    {Type == "WebsiteSpider" && (
+                        <>
+                            <Grid xs={4}>
+                                <TextField
+                                    fullWidth
+                                    id="delay"
+                                    name="delay"
+                                    label="Delay"
+                                    value={`${Delay}s`}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid xs={4}>
+                                <TextField
+                                    fullWidth
+                                    id="graphDeep"
+                                    name="graphDeep"
+                                    label="Graph Deep"
+                                    value={GraphDeep}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid xs={4}>
+                                <TextField
+                                    fullWidth
+                                    id="maxThread"
+                                    name="maxThread"
+                                    label="Max Thread"
+                                    value={MaxThread}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Grid>
+                        </>
+                    )}
+
+                    <Grid xs={6}>
+                        <TextField
+                            fullWidth
+                            id="isScheduled"
+                            name="isScheduled"
+                            label="Is Scheduled"
+                            value={IsSchedule == true ? "Yes" : "No"}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid xs={6}>
+                        <TextField
+                            fullWidth
+                            id="scheduleTime"
+                            name="scheduleTime"
+                            label="Schedule Time"
+                            value={ScheduleTime}
+                            disabled={IsSchedule == false}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
                     </Grid>
 
-                </Grid>
-                <form
-                    style={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                >
-                    <Grid container spacing={0} sx={{ flexGrow: 0 }}>                                          
-                        <Grid xs={12}>
-                            <h3>Basic Configuration</h3>
-                        </Grid>
-                        <Grid xs={4}>
-                            Url: 
-                        </Grid>
-                        <Grid xs={8}>
-                            {Url}
-                        </Grid>                        
-                        <Grid xs={4}>
-                            Type: 
-                        </Grid>
-                        <Grid xs={8}>
-                            {Type}
-                        </Grid>                        
-                        <Grid xs={4}>
-                            Status:
-                        </Grid>
-                        <Grid xs={8}>
-                            {Status}
-                        </Grid>  
-                        <Grid xs={4}>
-                            Is Scheduled:
-                        </Grid>
-                        <Grid xs={8}>
-                            {IsSchedule == true ? "Yes" : "No"}
-                        </Grid>  
-                        {IsSchedule == true && (
-                          <>
-                              <Grid xs={4}>
-                                  Scheduled Time:
-                              </Grid>
-                              <Grid xs={8}>
-                                  {ScheduleTime}
-                              </Grid> 
-                          </>
-                        )}                      
-                        {Type == "WebsiteSpider" && (
-                          <>
-                            <Grid xs={4}>
-                                Delay: 
-                            </Grid>
-                            <Grid xs={8}>
-                                {Delay} s
-                            </Grid>                        
-                            <Grid xs={4}>
-                                Graph Depth: 
-                            </Grid>
-                            <Grid xs={8}>
-                                {GraphDeep}
-                            </Grid>                        
-                            <Grid xs={4}>
-                                Max Thread:
-                            </Grid>
-                            <Grid xs={8}>
-                                {MaxThread}
-                            </Grid>     
-                          </>
-                        )}
-                 
-                        <Grid xs={4}>
-                            Allowed Keyword:
-                        </Grid>
-                        <Grid xs={8}>
-                            {KeywordList.length == 0 ? "All" : KeywordList.join(', ')}
-                        </Grid>
-                        <Grid xs={4}>
-                            Allowed File Type:
-                        </Grid>
-                        <Grid xs={8}>
-                            {FileTypeList.length == 0 ? "All" : FileTypeList.join(', ')}
-                        </Grid>
-                        <Grid xs={12}>
-                            <Typography id="modal-modal-title" variant="h6" component="h2">
-                                {Type == "WebsiteSpider" && "Subfolders"}
-                                {Type == "WebpageSpider" && "Crawl Rules"}
-                            </Typography>
-                        </Grid>
-                        {Type == "WebsiteSpider" && (
-                          <WebsiteSpiderSubfolderModal
-                            spiderId={Id}
-                          />
-                        )}
-                        {Type == "WebpageSpider" && (
-                          <WebpageSpiderCrawlRulesModal 
-                              spiderId={Id}
-                          />
-                        )}
-                        <Grid xs={12}>
-                            <h3>Spider Stats</h3>
-                        </Grid>
-                        <Grid xs={4}>
-                            Last Run Date:
-                        </Grid>
-                        <Grid xs={8}>
-                            {LastRunDate ? LastRunDate : "This spider has never been launched"}
-                        </Grid>
-                        <Grid xs={4}>
-                            Last End Date:
-                        </Grid>
-                        <Grid xs={8}>
-                            {LastEndDate ? LastEndDate : "This spider has never been launched"}
-                        </Grid>
-                        <Grid xs={4}>
-                            Run Time:
-                        </Grid>
-                        <Grid xs={8}>
-                            {RunTime} s
-                        </Grid>
-                        {Type == "WebsiteSpider" && (
-                          <Grid xs={4}>
-                              Total Page:
-                          </Grid>
-                        )}
-                        {Type == "WebsiteSpider" && (
-                          <>
-                              <Grid xs={8}>
-                                  {TotalPage}
-                              </Grid>
-                              <Grid xs={4}>
-                                  Last Run New Article:
-                              </Grid>
-                              <Grid xs={8}>
-                                  {LastRunNewArticle}
-                              </Grid>
-                              <Grid xs={4}>
-                                  Last Run Update Article:
-                              </Grid>
-                              <Grid xs={8}>
-                                  {LastRunUpdateArticle}
-                              </Grid>
-                              <Grid xs={4}>
-                                  Last Run Unchange Article:
-                              </Grid>
-                              <Grid xs={8}>
-                                  {LastRunUnchangeArticle}
-                              </Grid>
-                          </>
-                        )}
+                    <Grid xs={12}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            id="keyword"
+                            name="keyword"
+                            label="Allowed Keyword"
+                            value={
+                                KeywordList.length == 0
+                                    ? "All"
+                                    : KeywordList.join(", ")
+                            }
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
                     </Grid>
-                </form>
-            </Box>
-        </Modal>
+                    <Grid xs={12}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            id="fileType"
+                            name="fileType"
+                            label="Allowed File Type"
+                            value={
+                                FileTypeList.length == 0
+                                    ? "All"
+                                    : FileTypeList.join(", ")
+                            }
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                </Grid>
+
+                {Type == "WebsiteSpider" && (
+                    <WebsiteSpiderSubfolderModal spiderId={Id} />
+                )}
+                {Type == "WebpageSpider" && (
+                    <WebpageSpiderCrawlRulesModal spiderId={Id} />
+                )}
+
+                <DialogContentText
+                    sx={{ fontWeight: "bold", color: "#1877f2" }}
+                >
+                    Spider Stats
+                </DialogContentText>
+                <Grid container spacing={2} margin={1}>
+                    <Grid xs={4}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            id="lastRunDate"
+                            name="lastRunDate"
+                            label="Last Run Date"
+                            value={
+                                LastRunDate
+                                    ? LastRunDate
+                                    : "This spider hasn't been launched"
+                            }
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid xs={4}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            id="lastEndDate"
+                            name="lastEndDate"
+                            label="Last End Date"
+                            value={
+                                LastEndDate
+                                    ? LastEndDate
+                                    : "This spider hasn't been launched"
+                            }
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid xs={4}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            id="runTime"
+                            name="runTime"
+                            label="Run Rime"
+                            value={convertSecondsToTimeFormat(RunTime)}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                    </Grid>
+                    {Type == "WebsiteSpider" && (
+                        <>
+                            <Grid xs={3}>
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    id="fileType"
+                                    name="fileType"
+                                    label="Total Page"
+                                    value={TotalPage}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid xs={3}>
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    id="fileType"
+                                    name="fileType"
+                                    label="Last Run New Article"
+                                    value={LastRunNewArticle}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid xs={3}>
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    id="fileType"
+                                    name="fileType"
+                                    label="Last Run Update Article"
+                                    value={LastRunUpdateArticle}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid xs={3}>
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    id="fileType"
+                                    name="fileType"
+                                    label="Last Run Unchange Article"
+                                    value={LastRunUnchangeArticle}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Grid>
+                        </>
+                    )}
+                </Grid>
+            </DialogContent>
+        </Dialog>
     );
 }

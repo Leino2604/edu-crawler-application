@@ -14,11 +14,8 @@ import { visuallyHidden } from "./utils";
 export default function SpiderTableHead({
     order,
     orderBy,
-    rowCount,
     headLabel,
-    numSelected,
     onRequestSort,
-    onSelectAllClick,
 }) {
     const onSort = (property) => (event) => {
         onRequestSort(event, property);

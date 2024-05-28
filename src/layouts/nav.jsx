@@ -98,11 +98,6 @@ export default function Nav({ openNav, onCloseNav }) {
     } else {
         navConfig = [
             {
-                title: "dashboard",
-                path: "/",
-                icon: icon("ic_analytics"),
-            },
-            {
                 title: "article",
                 path: "/article",
                 icon: icon("ic_article"),
@@ -110,16 +105,6 @@ export default function Nav({ openNav, onCloseNav }) {
             {
                 title: "spider",
                 path: "/spider",
-                icon: icon("ic_spider"),
-            },
-            {
-                title: "website spider",
-                path: "/websitespider",
-                icon: icon("ic_spider"),
-            },
-            {
-                title: "webpage spider",
-                path: "/webpagespider",
                 icon: icon("ic_spider"),
             },
             {
@@ -146,12 +131,10 @@ export default function Nav({ openNav, onCloseNav }) {
             <Avatar src={account.photoURL} alt="photoURL" />
 
             <Box sx={{ ml: 2 }}>
-                <Typography variant="subtitle2">
-                    {account.displayName}
-                </Typography>
+                <Typography variant="subtitle2">{result?.Username}</Typography>
 
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {account.role}
+                    {result?.Role}
                 </Typography>
             </Box>
         </Box>

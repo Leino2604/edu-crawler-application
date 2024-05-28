@@ -26,6 +26,9 @@ export default function UserTableRow({
     id,
     username,
     role,
+    fullname,
+    phone,
+    mail,
     accountStatus,
     handleEditUser,
     handleDeleteUser,
@@ -33,10 +36,9 @@ export default function UserTableRow({
     const [open, setOpen] = useState(null);
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
-    const [fullname, setFullname] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-
+    const [fullname1, setFullname1] = useState(fullname);
+    const [mail1, setMail1] = useState(mail);
+    const [phone1, setPhone1] = useState(phone);
     return (
         <>
             <TableRow hover tabIndex={-1} role="checkbox">
@@ -119,14 +121,11 @@ export default function UserTableRow({
                         event.preventDefault();
                         handleEditUser({
                             user_id: id,
-                            full_name: fullname,
-                            mail: email,
-                            phone: phone,
+                            full_name: fullname1,
+                            mail: mail1,
+                            phone: phone1,
                         });
                         setEditOpen(false);
-                        setFullname("");
-                        setPhone("");
-                        setEmail("");
                     },
                 }}
             >
@@ -140,10 +139,10 @@ export default function UserTableRow({
                         id="fullname"
                         name="fullname"
                         label="Full Name"
-                        value={fullname}
+                        value={fullname1}
                         sx={{ margin: "8px 0px" }}
                         onChange={(e) => {
-                            setFullname(e.target.value);
+                            setFullname1(e.target.value);
                         }}
                     />
                     <TextField
@@ -153,10 +152,10 @@ export default function UserTableRow({
                         id="phone"
                         name="phone"
                         label="Phone"
-                        value={phone}
+                        value={phone1}
                         margin="normal"
                         onChange={(e) => {
-                            setPhone(e.target.value);
+                            setPhone1(e.target.value);
                         }}
                     />
                     <TextField
@@ -166,10 +165,10 @@ export default function UserTableRow({
                         id="email"
                         name="email"
                         label="Email"
-                        value={email}
+                        value={mail1}
                         margin="normal"
                         onChange={(e) => {
-                            setEmail(e.target.value);
+                            setMail1(e.target.value);
                         }}
                     />
                 </DialogContent>
@@ -177,9 +176,9 @@ export default function UserTableRow({
                     <Button
                         onClick={() => {
                             setEditOpen(false);
-                            setFullname("");
-                            setPhone("");
-                            setEmail("");
+                            setFullname1(fullname);
+                            setPhone1(phone);
+                            setMail1(mail);
                         }}
                         variant="outlined"
                     >
