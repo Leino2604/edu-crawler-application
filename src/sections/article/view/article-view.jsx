@@ -61,7 +61,7 @@ export default function ArticlePage() {
 
     const { data: articleXls } = useQuery({
         queryKey: ["allarticlexls"],
-        queryFn: () => exportAllXls({ page: 0, articlePerPage: 5 }),
+        queryFn: () => exportAllXls({ page: 0, articlePerPage: 20 }),
     });
 
     const handleSort = (event, id) => {
@@ -144,6 +144,7 @@ export default function ArticlePage() {
                     color="inherit"
                     startIcon={<Iconify icon="material-symbols:download" />}
                     onClick={() => {
+                        console.log(articleXls?.data);
                         const dataStr = JSON.stringify(
                             articleXls?.data,
                             null,
